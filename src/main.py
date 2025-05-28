@@ -8,8 +8,8 @@ from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.kernel import Kernel
 
-from src.services.instagram_export import InstagramExport
-from src.services.config_service import get_configs
+from src.service.instagram_export import InstagramExport
+from src.service.config_service import get_configs
 
 # read configs
 config = get_configs('../config.yml')
