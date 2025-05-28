@@ -1,5 +1,4 @@
 import os
-import asyncio
 
 from openai import AsyncOpenAI
 
@@ -8,7 +7,7 @@ from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.kernel import Kernel
 
-from src.service.instagram_export import InstagramExport
+from src.service.parser.instagram_export import InstagramExport
 from src.service.config_service import get_configs
 
 # read configs
