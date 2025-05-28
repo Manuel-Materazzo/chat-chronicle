@@ -1,3 +1,4 @@
+import os
 import asyncio
 
 from openai import AsyncOpenAI
@@ -8,43 +9,44 @@ from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.kernel import Kernel
 
 from src.services.instagram_export import InstagramExport
+from src.services.config_service import get_configs
 
-system_message = """You are a bot that writes simple diary entries.
-Below are messages from one day of Instagram DMs.
-Each message starts with the sender’s name, then a colon, then the text.
-Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
-"""
-
-kernel = Kernel()
+# read configs
+config = get_configs('../config.yml')
 
 service_id = "local-gpt"
+kernel = Kernel()
 
+# create LLM API client and add it to kernel
 openAIClient: AsyncOpenAI = AsyncOpenAI(
-    api_key="pepino",
-    base_url="http://127.0.0.1:1234/v1",
+    api_key=config.get('inference-service', {}).get('api_key', ''),
+    base_url=config.get('inference-service', {}).get('endpoint', ''),
 )
 kernel.add_service(
-    OpenAIChatCompletion(service_id=service_id, ai_model_id="gemma-3-4b-it-qat", async_client=openAIClient))
+    OpenAIChatCompletion(
+        service_id=service_id,
+        ai_model_id=config.get('llm', {}).get('model-name', ''),
+        async_client=openAIClient
+    )
+)
 
+# set llm params on kernel
 settings = kernel.get_prompt_execution_settings_from_service_id(service_id)
-settings.max_tokens = 2000
-settings.temperature = 0.7
-settings.top_p = 0.8
+settings.max_tokens = config.get('llm', {}).get('max-tokens', 2000)
+settings.temperature = config.get('llm', {}).get('temperature', 0.7)
+settings.top_p = config.get('llm', {}).get('top-p', 0.8)
 
+# add chat function to kernel
 chat_function = kernel.add_function(
     plugin_name="ChatBot",
     function_name="Chat",
-    prompt=system_message + """    
-{{$chat_history}}
-Messages:
-{{$messages}}
-Diary entry:
-""",
+    prompt=config.get('llm', {}).get('user-prompt', ''),
     template_format="semantic-kernel",
     prompt_execution_settings=settings,
 )
 
-chat_history = ChatHistory(system_message=system_message)
+# create chat history
+chat_history = ChatHistory(system_message=config.get('llm', {}).get('system-prompt', ''))
 
 
 async def main(messages: str) -> None:
@@ -53,7 +55,17 @@ async def main(messages: str) -> None:
 
 
 if __name__ == "__main__":
-    reader = InstagramExport("C:\\message_1.json")
-    day = reader.get_available_days()[0]
-    # print(reader.get_diary_record(day))
-    asyncio.run(main(reader.get_diary_record(day)))
+    path = config.get('input', {}).get('folder', './')
+    directory = os.fsencode(path)
+
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        if filename.endswith(".json"):
+            # TODO: handle missing trailing slash
+            reader = InstagramExport(path + filename)
+            # TODO: all days
+            day = reader.get_available_days()[0]
+            print(reader.get_diary_record(day))
+            # asyncio.run(main(reader.get_diary_record(day)))
+
+    #TODO: output file

@@ -71,6 +71,8 @@ class InstagramExport:
         :return:
         """
 
+        #TODO: localize
+
         # handle reels
         if raw_message.get("share", None) is not None:
             return "[Shared an internet video]"
@@ -84,12 +86,14 @@ class InstagramExport:
         if raw_message.get("photos", None) is not None:
             return "[Sent a photo of himself]"
 
+        content = raw_message.get("content", "");
+
         # handle message likes
-        if raw_message.get("content", "") == "Ha messo \"Mi piace\" a un messaggio":
-            return ""
-        elif "Ha aggiunto la reazione" in raw_message.get("content", ""):
+        # TODO: localize
+        if content == "Ha messo \"Mi piace\" a un messaggio" or "Ha aggiunto la reazione" in content:
             return ""
 
+        #TODO: handle newlines on messages
         return self.__fix_unicodes(raw_message.get("content", ""))
 
     def __fix_unicodes(self, text: str) -> str:
