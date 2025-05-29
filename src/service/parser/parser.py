@@ -1,4 +1,7 @@
 from abc import ABC, abstractmethod
+from collections import defaultdict
+
+from src.dto.message import Message
 
 
 class Parser(ABC):
@@ -8,17 +11,28 @@ class Parser(ABC):
 
     @abstractmethod
     def __init__(self, paths: list[str]):
-        pass
+        self.message_bucket = defaultdict(list[Message])
+
+    def sort_bucket(self):
+        """
+        Sorts the message bucket.
+        :return:
+        """
+        for day in self.get_available_days():
+            messages = self.message_bucket.get(day)
+            sorted_messages = sorted(messages, key=lambda x: x['timestamp'])
+            self.message_bucket[day] = sorted_messages
+            # TODO: move messages back a day if they are from the previous session
 
     @abstractmethod
-    def get_messages_grouped(self) -> dict[str, list[str]]:
+    def get_messages_grouped(self) -> dict[str, list[Message]]:
         """
         Returns a dictionary where each key is a date and each value is a list of messages.
         :return:
         """
 
     @abstractmethod
-    def get_messages(self, date: str) -> list[str]:
+    def get_messages(self, date: str) -> list[Message]:
         """
         Returns list of messages sent on the provided date.
         :param date:

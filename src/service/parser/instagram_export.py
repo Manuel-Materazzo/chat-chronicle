@@ -11,17 +11,15 @@ from src.service.parser.parser import Parser
 class InstagramExport(Parser):
 
     def __init__(self, paths: list[str]):
-        self.message_bucket = defaultdict(list[Message])
+        super().__init__(paths)
+
         # read files and load bucket
         for path in paths:
             raw = self.__read(path)
             self.__bucket_messages(raw)
             del raw
-        # sort bucket messages
-        for day in list(self.message_bucket.keys()):
-            messages = self.message_bucket.get(day)
-            sorted_messages = sorted(messages, key=lambda x: x['timestamp'])
-            self.message_bucket[day] = sorted_messages
+
+        self.sort_bucket()
 
     def get_messages_grouped(self) -> dict[str, list[Message]]:
         return self.message_bucket
@@ -62,6 +60,8 @@ class InstagramExport(Parser):
             # compute timestamp
             timestamp = datetime.fromtimestamp(raw_message.get("timestamp_ms") / 1000.0)
             day_string = timestamp.date().isoformat()
+            #TODO: implement "ignore messages before" and "ignore messages after"
+
             # fix semantics
             content = self.__get_message_content(raw_message)
             if len(content) == 0:
