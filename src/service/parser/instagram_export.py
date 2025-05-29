@@ -9,9 +9,12 @@ from src.service.parser.parser import Parser
 
 class InstagramExport(Parser):
 
-    def __init__(self, path: str):
-        raw = self.__read(path)
-        self.message_bucket = self.__parse_and_group(raw)
+    def __init__(self, paths: list[str]):
+        self.raw_message_bucket = defaultdict(list[str])
+        self.message_bucket = defaultdict(list[str])
+        for path in paths:
+            raw = self.__read(path)
+            self.__bucket_messages(raw)
         del raw
 
     def get_messages_grouped(self) -> dict[str, list[str]]:
@@ -36,16 +39,14 @@ class InstagramExport(Parser):
         with open(path) as f:
             data = json.load(f)
         messages = data["messages"]
-        messages.reverse()
         return messages
 
-    def __parse_and_group(self, raw_messages: list[InstagramExportMessage]) -> dict[str, list[str]]:
+    def __bucket_messages(self, raw_messages: list[InstagramExportMessage]):
         """
         Parses messages, and groups them into a daily bucket
         :param raw_messages:
         :return:
         """
-        bucket = defaultdict(list[str])
         for raw_message in raw_messages:
             # compute timestamp
             timestamp = datetime.fromtimestamp(raw_message.get("timestamp_ms") / 1000.0)
@@ -58,9 +59,7 @@ class InstagramExport(Parser):
             sender = self.__remove_unicodes(raw_message.get("sender_name", "unknown"))
             # save message into bucket
             message = f"[{time_string}] {sender}: {content}"
-            bucket[day_string].append(message)
-
-        return bucket
+            self.message_bucket[day_string].append(message)
 
     def __get_message_content(self, raw_message: InstagramExportMessage) -> str:
         """

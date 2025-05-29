@@ -56,19 +56,26 @@ async def main(messages: str) -> None:
 
 
 if __name__ == "__main__":
+    # read configs
     input_path = config.get('input', {}).get('folder', './')
     input_file_type = config.get('input', {}).get('file-type', InputFileType.INSTAGRAM_EXPORT)
     output_path = config.get('output', {}).get('folder', './')
 
     input_directory = os.fsencode(input_path)
 
+    # generate files list
+    files = []
     for file in os.listdir(input_directory):
         filename = os.fsdecode(file)
         if filename.endswith(".json"):
             # TODO: handle missing trailing slash
-            reader = parser_factory(input_file_type, input_path + filename)
-            # TODO: all days
-            day = reader.get_available_days()[0]
-            asyncio.run(main(reader.get_diary_record(day)))
+            files.append(input_path + filename)
 
-    #TODO: output file
+    reader = parser_factory(input_file_type, files)
+    # TODO: all days
+    # day = reader.get_available_days()[0]
+    messages = reader.get_messages_grouped()
+    print(reader.get_diary_record("2025-05-05"))
+    # asyncio.run(main(reader.get_diary_record(day)))
+
+# TODO: output file

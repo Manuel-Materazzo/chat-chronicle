@@ -7,6 +7,10 @@ class Parser(ABC):
     """
 
     @abstractmethod
+    def __init__(self, paths: list[str]):
+        pass
+
+    @abstractmethod
     def get_messages_grouped(self) -> dict[str, list[str]]:
         """
         Returns a dictionary where each key is a date and each value is a list of messages.
