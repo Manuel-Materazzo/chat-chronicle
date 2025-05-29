@@ -1,0 +1,111 @@
+{
+  "participants": [
+    {
+      "name": "User 1"
+    },
+    {
+      "name": "User 2"
+    }
+  ],
+  "messages": [
+    {
+      "sender_name": "User 1",
+      "timestamp_ms": 1731963506274,
+      "content": "Ahahhahahha",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 2",
+      "timestamp_ms": 1731963034284,
+      "share": {
+        "link": "https://media2.giphy.com/media/v1.Y2lkPTQyMzA0NmQwaDJsaDdvanFyMnllNTlrc2NjY203dGxlY21ubDZueDJqeXVuMHR5NyZlcD12MV9naWZzX2dpZklkJmN0PWc/VOPK1BqsMEJRS/200.gif"
+      },
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 2",
+      "timestamp_ms": 1731963020659,
+      "content": "I like your way of thinking",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 1",
+      "timestamp_ms": 1731962859416,
+      "content": "I Love capybaras",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 2",
+      "timestamp_ms": 1731962324735,
+      "content": "They are also funny \u00f0\u009f\u00ab\u00a0",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 2",
+      "timestamp_ms": 1731962283194,
+      "content": "I think that too",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 1",
+      "timestamp_ms": 1731962054496,
+      "content": "They are cute",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 1",
+      "timestamp_ms": 1731962052728,
+      "content": "yes",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 2",
+      "timestamp_ms": 1731961452031,
+      "content": "Do you like capybaras?",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 1",
+      "timestamp_ms": 1731961446425,
+      "content": "Nice, thanks",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 2",
+      "timestamp_ms": 1731961409641,
+      "content": "How's going?",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 2",
+      "timestamp_ms": 1731961318272,
+      "content": "Greetings",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    },
+    {
+      "sender_name": "User 1",
+      "timestamp_ms": 1731961203575,
+      "content": "Hi",
+      "is_geoblocked_for_viewer": false,
+      "is_unsent_image_by_messenger_kid_parent": false
+    }
+  ],
+  "title": "User 1",
+  "is_still_participant": true,
+  "thread_path": "inbox/User 1_1234567890123456",
+  "magic_words": [
+    
+  ]
+}

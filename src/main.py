@@ -1,4 +1,5 @@
 import os
+import asyncio
 
 from openai import AsyncOpenAI
 
@@ -19,7 +20,7 @@ kernel = Kernel()
 
 # create LLM API client and add it to kernel
 openAIClient: AsyncOpenAI = AsyncOpenAI(
-    api_key=config.get('inference-service', {}).get('api_key', ''),
+    api_key=config.get('inference-service', {}).get('api-key', ''),
     base_url=config.get('inference-service', {}).get('endpoint', ''),
 )
 kernel.add_service(
@@ -68,7 +69,6 @@ if __name__ == "__main__":
             reader = parser_factory(input_file_type, input_path + filename)
             # TODO: all days
             day = reader.get_available_days()[0]
-            print(reader.get_diary_record(day))
-            # asyncio.run(main(reader.get_diary_record(day)))
+            asyncio.run(main(reader.get_diary_record(day)))
 
     #TODO: output file
