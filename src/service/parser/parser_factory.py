@@ -12,3 +12,6 @@ def parser_factory(fileType: InputFileType, path: str) -> Parser:
     """
     if fileType == InputFileType.INSTAGRAM_EXPORT:
         return InstagramExport(path)
+
+    message = f"Input file type not supported, please choose one of the following: {[e.value for e in InputFileType]}"
+    raise ValueError(message)
