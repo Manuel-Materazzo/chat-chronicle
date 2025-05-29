@@ -1,7 +1,17 @@
 import os
+from enum import StrEnum
+
+from yaml.representer import SafeRepresenter
 from yaml import SafeLoader, SafeDumper, dump, load
 
+from src.dto.enums.input_file_type import InputFileType
+
 config = dict()
+
+SafeDumper.add_multi_representer(
+    StrEnum,
+    SafeRepresenter.represent_str,
+)
 
 
 def str_presenter(dumper, data):
@@ -26,7 +36,7 @@ def get_configs(filename: str) -> dict:
     # output default config file if not found
     if not os.path.isfile(filename):
         config['input'] = {
-            'file-type': 'INSTAGRAM_EXPORT',
+            'file-type': InputFileType.INSTAGRAM_EXPORT,
             'folder': '../input/',
         }
         config['output'] = {

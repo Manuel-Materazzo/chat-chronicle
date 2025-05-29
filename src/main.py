@@ -7,8 +7,9 @@ from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.kernel import Kernel
 
-from src.service.parser.instagram_export import InstagramExport
+from src.dto.enums.input_file_type import InputFileType
 from src.service.config_service import get_configs
+from src.service.parser.parser_factory import parser_factory
 
 # read configs
 config = get_configs('../config.yml')
@@ -54,14 +55,17 @@ async def main(messages: str) -> None:
 
 
 if __name__ == "__main__":
-    path = config.get('input', {}).get('folder', './')
-    directory = os.fsencode(path)
+    input_path = config.get('input', {}).get('folder', './')
+    input_file_type = config.get('input', {}).get('file-type', InputFileType.INSTAGRAM_EXPORT)
+    output_path = config.get('output', {}).get('folder', './')
 
-    for file in os.listdir(directory):
+    input_directory = os.fsencode(input_path)
+
+    for file in os.listdir(input_directory):
         filename = os.fsdecode(file)
         if filename.endswith(".json"):
             # TODO: handle missing trailing slash
-            reader = InstagramExport(path + filename)
+            reader = parser_factory(input_file_type, input_path + filename)
             # TODO: all days
             day = reader.get_available_days()[0]
             print(reader.get_diary_record(day))

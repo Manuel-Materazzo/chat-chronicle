@@ -4,9 +4,10 @@ from collections import defaultdict
 from datetime import datetime
 
 from src.dto.instagram_export_message import InstagramExportMessage
+from src.service.parser.parser import Parser
 
 
-class InstagramExport:
+class InstagramExport(Parser):
 
     def __init__(self, path: str):
         raw = self.__read(path)
@@ -22,7 +23,7 @@ class InstagramExport:
     def get_available_days(self) -> list[str]:
         return list(self.message_bucket.keys())
 
-    def get_diary_record(self, date: str):
+    def get_diary_record(self, date: str) -> str:
         messages = self.get_messages(date)
         return "\n".join(messages)
 
