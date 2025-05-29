@@ -4,23 +4,29 @@ from collections import defaultdict
 from datetime import datetime
 
 from src.dto.instagram_export_message import InstagramExportMessage
+from src.dto.message import Message
 from src.service.parser.parser import Parser
 
 
 class InstagramExport(Parser):
 
     def __init__(self, paths: list[str]):
-        self.raw_message_bucket = defaultdict(list[str])
-        self.message_bucket = defaultdict(list[str])
+        self.message_bucket = defaultdict(list[Message])
+        # read files and load bucket
         for path in paths:
             raw = self.__read(path)
             self.__bucket_messages(raw)
-        del raw
+            del raw
+        # sort bucket messages
+        for day in list(self.message_bucket.keys()):
+            messages = self.message_bucket.get(day)
+            sorted_messages = sorted(messages, key=lambda x: x['timestamp'])
+            self.message_bucket[day] = sorted_messages
 
-    def get_messages_grouped(self) -> dict[str, list[str]]:
+    def get_messages_grouped(self) -> dict[str, list[Message]]:
         return self.message_bucket
 
-    def get_messages(self, date: str) -> list[str]:
+    def get_messages(self, date: str) -> list[Message]:
         return self.message_bucket.get(date, [])
 
     def get_available_days(self) -> list[str]:
@@ -28,7 +34,12 @@ class InstagramExport(Parser):
 
     def get_diary_record(self, date: str) -> str:
         messages = self.get_messages(date)
-        return "\n".join(messages)
+        diary = ""
+        for message in messages:
+            timestamp = message.get("timestamp")
+            time_string = f"{timestamp.hour:02}:{timestamp.minute:02}"
+            diary = diary + f"[{time_string}] {message.get('sender_name')}: {message.get('content')}\n"
+        return diary
 
     def __read(self, path: str) -> list[InstagramExportMessage]:
         """
@@ -51,15 +62,17 @@ class InstagramExport(Parser):
             # compute timestamp
             timestamp = datetime.fromtimestamp(raw_message.get("timestamp_ms") / 1000.0)
             day_string = timestamp.date().isoformat()
-            time_string = f"{timestamp.hour}:{timestamp.minute}"
             # fix semantics
             content = self.__get_message_content(raw_message)
             if len(content) == 0:
                 continue
             sender = self.__remove_unicodes(raw_message.get("sender_name", "unknown"))
             # save message into bucket
-            message = f"[{time_string}] {sender}: {content}"
-            self.message_bucket[day_string].append(message)
+            self.message_bucket[day_string].append({
+                'sender_name': sender,
+                'timestamp': timestamp,
+                'content': content,
+            })
 
     def __get_message_content(self, raw_message: InstagramExportMessage) -> str:
         """
