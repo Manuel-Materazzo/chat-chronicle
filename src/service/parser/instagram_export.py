@@ -10,8 +10,9 @@ from src.service.parser.parser import Parser
 
 class InstagramExport(Parser):
 
-    def __init__(self, paths: list[str]):
-        super().__init__(paths)
+    def __init__(self, paths: list[str], chat_sessions_enabled: bool = False, sleep_window_start: int = 2,
+                 sleep_window_end: int = 9):
+        super().__init__(paths, chat_sessions_enabled,sleep_window_start, sleep_window_end)
 
         # read files and load bucket
         for path in paths:
@@ -60,7 +61,7 @@ class InstagramExport(Parser):
             # compute timestamp
             timestamp = datetime.fromtimestamp(raw_message.get("timestamp_ms") / 1000.0)
             day_string = timestamp.date().isoformat()
-            #TODO: implement "ignore messages before" and "ignore messages after"
+            # TODO: implement "ignore messages before" and "ignore messages after"
 
             # fix semantics
             content = self.__get_message_content(raw_message)
@@ -84,7 +85,7 @@ class InstagramExport(Parser):
         :return:
         """
 
-        #TODO: localize
+        # TODO: localize
 
         # handle reels
         if raw_message.get("share", None) is not None:
@@ -106,7 +107,7 @@ class InstagramExport(Parser):
         if content == "Ha messo \"Mi piace\" a un messaggio" or "Ha aggiunto la reazione" in content:
             return ""
 
-        #TODO: handle newlines on messages
+        # TODO: handle newlines on messages
         return self.__fix_unicodes(raw_message.get("content", ""))
 
     def __fix_unicodes(self, text: str) -> str:

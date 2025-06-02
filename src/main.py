@@ -58,7 +58,7 @@ async def main(messages: str) -> None:
 if __name__ == "__main__":
     # read configs
     input_path = config.get('input', {}).get('folder', './')
-    input_file_type = config.get('input', {}).get('file-type', InputFileType.INSTAGRAM_EXPORT)
+
     output_path = config.get('output', {}).get('folder', './')
 
     input_directory = os.fsencode(input_path)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
             # TODO: handle missing trailing slash
             files.append(input_path + filename)
 
-    reader = parser_factory(input_file_type, files)
+    reader = parser_factory(config, files)
     # TODO: all days
     # day = reader.get_available_days()[0]
     messages = reader.get_messages_grouped()

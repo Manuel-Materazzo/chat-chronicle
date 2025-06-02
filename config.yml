@@ -20,3 +20,8 @@ llm:
     Diary entry:
 output:
   folder: ../output/
+parsing:
+  chat-sessions:
+    enabled: true
+    sleep-window-end-hour: 9
+    sleep-window-start-hour: 2

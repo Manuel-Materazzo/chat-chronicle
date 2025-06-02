@@ -8,6 +8,7 @@ from src.dto.enums.input_file_type import InputFileType
 
 config = dict()
 
+# represent enums as string
 SafeDumper.add_multi_representer(
     StrEnum,
     SafeRepresenter.represent_str,
@@ -15,6 +16,12 @@ SafeDumper.add_multi_representer(
 
 
 def str_presenter(dumper, data):
+    """
+    Fixes multiline string representation
+    :param dumper:
+    :param data:
+    :return:
+    """
     if '\n' in data:
         clean_data = "\n".join(line.rstrip() for line in data.splitlines())
         return dumper.represent_scalar('tag:yaml.org,2002:str', clean_data, style='|')
@@ -41,6 +48,13 @@ def get_configs(filename: str) -> dict:
         }
         config['output'] = {
             'folder': '../output/',
+        }
+        config['parsing'] = {
+            'chat-sessions': {
+                'enabled': True,
+                'sleep-window-start-hour': 2,
+                'sleep-window-end-hour': 9,
+            }
         }
         config['inference-service'] = {
             'endpoint': 'http://127.0.0.1:1234/v1',

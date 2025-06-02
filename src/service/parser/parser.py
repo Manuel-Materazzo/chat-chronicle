@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from datetime import timedelta, time
 
 from src.dto.message import Message
 
@@ -10,8 +11,13 @@ class Parser(ABC):
     """
 
     @abstractmethod
-    def __init__(self, paths: list[str]):
+    def __init__(self, paths: list[str], chat_sessions_enabled: bool = False, sleep_window_start: int = 2,
+                 sleep_window_end: int = 9) -> None:
         self.message_bucket = defaultdict(list[Message])
+        self.gap_threshold = timedelta(hours=3)
+        self.chat_sessions_enabled = chat_sessions_enabled
+        self.sleep_window_start = time(sleep_window_start, 0)
+        self.sleep_window_end = time(sleep_window_end, 0)
 
     def sort_bucket(self):
         """
@@ -21,8 +27,38 @@ class Parser(ABC):
         for day in self.get_available_days():
             messages = self.message_bucket.get(day)
             sorted_messages = sorted(messages, key=lambda x: x['timestamp'])
-            self.message_bucket[day] = sorted_messages
-            # TODO: move messages back a day if they are from the previous session
+
+            # usually conversations don't end precisely at midnight, we need to end the day when there is a "sleep" gap.
+            # we will detect that gap in a plausible sleep window, and carry the messages back to the prev day.
+            if self.chat_sessions_enabled:
+                prev_timestamp = sorted_messages[0]['timestamp']
+                previous_day_carry_over = []
+                for i, msg in enumerate(sorted_messages):
+
+                    timestamp_time = msg['timestamp'].time()
+
+                    # if message is after sleep window end (09:00), there is no carry over
+                    if timestamp_time > self.sleep_window_end:
+                        break
+
+                    # if the message is between sleep window start (02:00) and end (09:00)
+                    if self.sleep_window_start <= msg['timestamp'].time():
+                        gap = msg['timestamp'] - prev_timestamp
+                        # and has a significant gap from the previous message
+                        if gap > self.gap_threshold:
+                            # remove messages from today's list, and add them to yesterday's carryover list
+                            previous_day_carry_over = sorted_messages[:i]
+                            sorted_messages = sorted_messages[i:]
+                            break
+                    # update last timestamp
+                    prev_timestamp = msg['timestamp']
+
+                # add carryover to the previous day
+                prev_day = prev_timestamp - timedelta(days=1)
+                prev_day_string = prev_day.date().isoformat()
+                self.message_bucket[prev_day_string].extend(previous_day_carry_over)
+
+                self.message_bucket[day] = sorted_messages
 
     @abstractmethod
     def get_messages_grouped(self) -> dict[str, list[Message]]:
