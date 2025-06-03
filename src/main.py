@@ -8,9 +8,9 @@ from semantic_kernel.contents.chat_history import ChatHistory
 from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.kernel import Kernel
 
-from src.dto.enums.input_file_type import InputFileType
 from src.service.config_service import get_configs
 from src.service.parser.parser_factory import parser_factory
+from src.service.writer.txt_writer import TxtWriter
 
 # read configs
 config = get_configs('../config.yml')
@@ -54,17 +54,12 @@ async def get_summary(messages: str) -> str:
     result = await kernel.invoke(chat_function, KernelArguments(messages=messages, chat_history=chat_history))
     if result is None:
         return ""
-    else:
-        return result.value
-
-def get_diary_record(summary: str, date: str) -> str:
-
+    return result
 
 
 if __name__ == "__main__":
     # read configs
     input_path = config.get('input', {}).get('folder', './')
-
     output_path = config.get('output', {}).get('folder', './')
 
     input_directory = os.fsencode(input_path)
@@ -77,10 +72,14 @@ if __name__ == "__main__":
             # TODO: handle missing trailing slash
             files.append(input_path + filename)
 
-    reader = parser_factory(config, files)
-    # TODO: all days
-    # messages = reader.get_messages_grouped()
-    print(reader.get_chat_log("2025-05-13"))
-    # asyncio.run(get_summary(reader.get_chat_log(day)))
+    # read files
+    parser = parser_factory(config, files)
 
-# TODO: output file
+    # instantiate writer
+    writer = TxtWriter(output_path)
+
+    # get summary and write each day diary
+    for day in parser.get_available_days():
+        chat_log = parser.get_chat_log(day)
+        summary = asyncio.run(get_summary(chat_log))
+        writer.write(day, chat_log, summary)
