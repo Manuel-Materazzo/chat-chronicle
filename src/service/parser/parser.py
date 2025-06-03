@@ -83,7 +83,7 @@ class Parser(ABC):
         """
 
     @abstractmethod
-    def get_diary_record(self, date: str) -> str:
+    def get_chat_log(self, date: str) -> str:
         """
         Returns a list of days with messages available.
         :return:

@@ -31,7 +31,7 @@ class InstagramExport(Parser):
     def get_available_days(self) -> list[str]:
         return list(self.message_bucket.keys())
 
-    def get_diary_record(self, date: str) -> str:
+    def get_chat_log(self, date: str) -> str:
         messages = self.get_messages(date)
         diary = ""
         for message in messages:

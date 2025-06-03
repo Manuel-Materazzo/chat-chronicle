@@ -50,9 +50,15 @@ chat_function = kernel.add_function(
 chat_history = ChatHistory(system_message=config.get('llm', {}).get('system-prompt', ''))
 
 
-async def main(messages: str) -> None:
-    answer = await kernel.invoke(chat_function, KernelArguments(messages=messages, chat_history=chat_history))
-    print(f"{answer}")
+async def get_summary(messages: str) -> str:
+    result = await kernel.invoke(chat_function, KernelArguments(messages=messages, chat_history=chat_history))
+    if result is None:
+        return ""
+    else:
+        return result.value
+
+def get_diary_record(summary: str, date: str) -> str:
+
 
 
 if __name__ == "__main__":
@@ -73,9 +79,8 @@ if __name__ == "__main__":
 
     reader = parser_factory(config, files)
     # TODO: all days
-    # day = reader.get_available_days()[0]
-    messages = reader.get_messages_grouped()
-    print(reader.get_diary_record("2025-05-05"))
-    # asyncio.run(main(reader.get_diary_record(day)))
+    # messages = reader.get_messages_grouped()
+    print(reader.get_chat_log("2025-05-13"))
+    # asyncio.run(get_summary(reader.get_chat_log(day)))
 
 # TODO: output file
