@@ -8,9 +8,10 @@ class Writer(ABC):
     """
 
     @abstractmethod
-    def __init__(self, folder: str, single_file: bool = True) -> None:
+    def __init__(self, folder: str, single_file: bool = True, export_chat: bool = False) -> None:
         self.folder = folder
         self.single_file = single_file
+        self.export_chat = export_chat
         self.single_file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-')}_full-chronicle.txt"
 
     @abstractmethod

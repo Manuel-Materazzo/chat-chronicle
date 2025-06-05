@@ -3,8 +3,8 @@ from src.service.writer.writer import Writer
 
 class TxtWriter(Writer):
 
-    def __init__(self, folder: str, single_file: bool = True) -> None:
-        super().__init__(folder, single_file)
+    def __init__(self, folder: str, single_file: bool = True, export_chat: bool = False) -> None:
+        super().__init__(folder, single_file, export_chat)
 
     def write(self, date: str, chat: str, summary: str) -> None:
 
@@ -19,5 +19,6 @@ class TxtWriter(Writer):
         with open(file_path, "a", encoding="utf-8") as f:
             f.write(f"[{date}]\n\n")
             f.write(f"Diary Entry: \n{summary}\n\n\n")
-            f.write(f"Chat History: \n{chat}\n\n\n")
+            if self.export_chat:
+                f.write(f"Chat History: \n{chat}\n\n\n")
 
