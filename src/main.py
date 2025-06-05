@@ -68,8 +68,7 @@ if __name__ == "__main__":
     for file in os.listdir(input_directory):
         filename = os.fsdecode(file)
         if filename.endswith(".json"):
-            # TODO: handle missing trailing slash
-            files.append(input_path + filename)
+            files.append(f"{input_path}/{filename}")
 
     # read files
     parser = parser_factory(config, files)

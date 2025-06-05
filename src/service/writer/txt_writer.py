@@ -8,7 +8,6 @@ class TxtWriter(Writer):
 
     def write(self, date: str, chat: str, summary: str) -> None:
 
-        # TODO: handle missing trailing slash
         # Compose file path, whether there is an append or a create operation
         if self.single_file:
             file_path = f"{self.folder}/{self.single_file_name}"
