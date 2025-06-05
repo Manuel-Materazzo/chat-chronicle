@@ -10,7 +10,7 @@ from semantic_kernel.kernel import Kernel
 
 from src.service.config_service import get_configs
 from src.service.parser.parser_factory import parser_factory
-from src.service.writer.txt_writer import TxtWriter
+from src.service.writer.writer_factory import writer_factory
 
 # read configs
 config = get_configs('../config.yml')
@@ -59,8 +59,7 @@ async def get_summary(messages: str) -> str:
 
 if __name__ == "__main__":
     # read configs
-    input_path = config.get('input', {}).get('folder', './')
-    output_path = config.get('output', {}).get('folder', './')
+    input_path = config.get('input', {}).get('path', './')
 
     input_directory = os.fsencode(input_path)
 
@@ -76,7 +75,7 @@ if __name__ == "__main__":
     parser = parser_factory(config, files)
 
     # instantiate writer
-    writer = TxtWriter(output_path)
+    writer = writer_factory(config)
 
     # get summary and write each day diary
     for day in parser.get_available_days():

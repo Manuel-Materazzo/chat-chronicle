@@ -11,7 +11,7 @@ def parser_factory(config: dict, paths: list[str]) -> Parser:
     :return:
     """
     # get configs
-    fileType = config.get('input', {}).get('file-type', InputFileType.INSTAGRAM_EXPORT)
+    fileType = config.get('input', {}).get('type', InputFileType.INSTAGRAM_EXPORT)
     chat_sessions_enabled = config.get('parsing', {}).get('chat-sessions', {}).get('enabled', True)
     sleep_window_start = config.get('parsing', {}).get('chat-sessions', {}).get('sleep-window-start-hour', 2)
     sleep_window_end = config.get('parsing', {}).get('chat-sessions', {}).get('sleep-window-end-hour', 9)

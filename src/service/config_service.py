@@ -43,11 +43,12 @@ def get_configs(filename: str) -> dict:
     # output default config file if not found
     if not os.path.isfile(filename):
         config['input'] = {
-            'file-type': InputFileType.INSTAGRAM_EXPORT,
-            'folder': '../input/',
+            'type': InputFileType.INSTAGRAM_EXPORT,
+            'path': '../input/',
         }
         config['output'] = {
-            'folder': '../output/',
+            'type': InputFileType.INSTAGRAM_EXPORT,
+            'path': '../output/',
         }
         config['parsing'] = {
             'chat-sessions': {

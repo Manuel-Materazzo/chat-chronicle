@@ -2,15 +2,23 @@ inference-service:
   api-key: xxx
   endpoint: http://127.0.0.1:1234/v1
 input:
-  file-type: INSTAGRAM_EXPORT
-  folder: ../input/
+  type: INSTAGRAM_EXPORT
+  path: ../input/
+output:
+  type: TXT
+  path: ../output/
+parsing:
+  chat-sessions:
+    enabled: true
+    sleep-window-end-hour: 9
+    sleep-window-start-hour: 2
 llm:
   max-tokens: 2000
   model-name: gemma-3-4b-it-qat
   system-prompt: |-
     You are a bot that writes simple diary entries.
     Below are messages from one day of Instagram DMs.
-    Each message starts with the sender’s name, then a colon, then the text.
+    Each message starts with the senderï¿½s name, then a colon, then the text.
     Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
   temperature: 0.7
   top-p: 0.8
@@ -18,10 +26,3 @@ llm:
     Messages:
     {{$messages}}
     Diary entry:
-output:
-  folder: ../output/
-parsing:
-  chat-sessions:
-    enabled: true
-    sleep-window-end-hour: 9
-    sleep-window-start-hour: 2
