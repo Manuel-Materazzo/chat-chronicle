@@ -7,6 +7,7 @@ input:
 output:
   type: TXT
   path: ../output/
+  merge-to-one-file: true
 parsing:
   chat-sessions:
     enabled: true

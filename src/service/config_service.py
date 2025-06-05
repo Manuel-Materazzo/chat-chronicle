@@ -49,6 +49,7 @@ def get_configs(filename: str) -> dict:
         config['output'] = {
             'type': InputFileType.INSTAGRAM_EXPORT,
             'path': '../output/',
+            'merge-to-one-file': True,
         }
         config['parsing'] = {
             'chat-sessions': {

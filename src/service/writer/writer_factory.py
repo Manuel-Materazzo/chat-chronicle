@@ -11,10 +11,11 @@ def writer_factory(config: dict) -> Writer:
     """
     # get configs
     output_path = config.get('output', {}).get('path', './')
-    fileType = config.get('output', {}).get('type', WriterType.TXT)
+    file_type = config.get('output', {}).get('type', WriterType.TXT)
+    single_file = config.get('output', {}).get('merge-to-one-file', True)
 
-    if fileType == WriterType.TXT:
-        return TxtWriter(output_path)
+    if file_type == WriterType.TXT:
+        return TxtWriter(output_path, single_file)
 
     message = f"Output Writer type not supported, please choose one of the following: {[e for e in WriterType]}"
     raise ValueError(message)
