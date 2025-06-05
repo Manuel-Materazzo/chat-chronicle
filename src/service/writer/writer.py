@@ -12,7 +12,7 @@ class Writer(ABC):
         self.folder = folder
         self.single_file = single_file
         self.export_chat = export_chat
-        self.single_file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-')}_full-chronicle.txt"
+        self.single_file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M')}_full-chronicle.txt"
 
     @abstractmethod
     def write(self, date: str, chat: str, summary: str) -> None:
