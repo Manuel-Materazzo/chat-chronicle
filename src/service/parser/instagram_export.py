@@ -105,8 +105,19 @@ class InstagramExport(Parser):
         if content == self.message_like or self.message_reaction in content:
             return ""
 
-        # TODO: handle newlines on messages
-        return self.__fix_unicodes(raw_message.get("content", ""))
+        content = self.__handle_newlines(content)
+        return self.__fix_unicodes(content)
+
+    def __handle_newlines(self, text: str) -> str:
+        """
+        Handles newlines on messages to reduce AI confusion.
+        :param text:
+        :return:
+        """
+        # replace newlines keeping punctuation semantics
+        for p in [":", ";", ",", "."]:
+            text = text.replace(f"{p}\n", f"{p} ")
+        return text.replace("\n", ". ")
 
     def __fix_unicodes(self, text: str) -> str:
         """
