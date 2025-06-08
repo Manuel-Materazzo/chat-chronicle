@@ -1,4 +1,5 @@
 from src.dto.enums.writer_type import WriterType
+from src.service.writer.json_writer import JsonWriter
 from src.service.writer.ndjson_writer import NdJsonWriter
 from src.service.writer.txt_writer import TxtWriter
 from src.service.writer.writer import Writer
@@ -20,6 +21,8 @@ def writer_factory(config: dict) -> Writer:
         return TxtWriter(output_path, single_file, export_chat)
     elif file_type == WriterType.NDJSON:
         return NdJsonWriter(output_path, single_file, export_chat)
+    elif file_type == WriterType.JSON:
+        return JsonWriter(output_path, single_file, export_chat)
 
     message = f"Output Writer type not supported, please choose one of the following: {[e for e in WriterType]}"
     raise ValueError(message)
