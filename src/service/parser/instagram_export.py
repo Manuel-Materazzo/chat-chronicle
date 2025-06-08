@@ -11,9 +11,10 @@ from src.service.parser.parser import Parser
 class InstagramExport(Parser):
 
     def __init__(self, paths: list[str], system_messages: dict, chat_sessions_enabled: bool = False,
-                 sleep_window_start: int = 2,
-                 sleep_window_end: int = 9):
-        super().__init__(paths, system_messages, chat_sessions_enabled, sleep_window_start, sleep_window_end)
+                 sleep_window_start: int = 2, sleep_window_end: int = 9, ignore_chat_enabled: bool = False,
+                 ignore_chat_before: str = "2150-01-01", ignore_chat_after: str = "1990-01-01"):
+        super().__init__(paths, system_messages, chat_sessions_enabled, sleep_window_start, sleep_window_end,
+                         ignore_chat_enabled, ignore_chat_before, ignore_chat_after)
 
         # read files and load bucket
         for path in paths:
@@ -61,8 +62,17 @@ class InstagramExport(Parser):
         for raw_message in raw_messages:
             # compute timestamp
             timestamp = datetime.fromtimestamp(raw_message.get("timestamp_ms") / 1000.0)
-            day_string = timestamp.date().isoformat()
-            # TODO: implement "ignore messages before" and "ignore messages after"
+
+            day = timestamp.date()
+
+            # ignore message if before or after set date
+            if self.ignore_chat_enabled and len(self.ignore_chat_before) > 0 and len(self.ignore_chat_after) > 0:
+                before_date = datetime.strptime(self.ignore_chat_before, '%Y-%m-%d').date()
+                after_date = datetime.strptime(self.ignore_chat_after, '%Y-%m-%d').date()
+                if day < before_date or day > after_date:
+                    continue
+
+            day_string = day.isoformat()
 
             # fix semantics
             content = self.__get_message_content(raw_message)

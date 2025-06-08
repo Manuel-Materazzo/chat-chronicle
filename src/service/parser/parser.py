@@ -11,13 +11,17 @@ class Parser(ABC):
     """
 
     @abstractmethod
-    def __init__(self, paths: list[str], system_messages: dict, chat_sessions_enabled: bool = False, sleep_window_start: int = 2,
-                 sleep_window_end: int = 9) -> None:
+    def __init__(self, paths: list[str], system_messages: dict, chat_sessions_enabled: bool = False,
+                 sleep_window_start: int = 2, sleep_window_end: int = 9, ignore_chat_enabled: bool = False,
+                 ignore_chat_before: str = "2150-01-01", ignore_chat_after: str = "1990-01-01") -> None:
         self.message_bucket = defaultdict(list[Message])
         self.gap_threshold = timedelta(hours=3)
         self.chat_sessions_enabled = chat_sessions_enabled
         self.sleep_window_start = time(sleep_window_start, 0)
         self.sleep_window_end = time(sleep_window_end, 0)
+        self.ignore_chat_enabled = ignore_chat_enabled
+        self.ignore_chat_before = ignore_chat_before
+        self.ignore_chat_after = ignore_chat_after
 
         # get messages from configs
         self.message_like = system_messages.get("user-interactions", {}).get("message-like", "")

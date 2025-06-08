@@ -58,6 +58,11 @@ def get_configs(filename: str) -> dict:
                 'sleep-window-start-hour': 2,
                 'sleep-window-end-hour': 9,
             },
+            'ignore-chat': {
+                'enabled': False,
+                'ignore-before': '1990-01-01',
+                'ignore-after': '2150-01-01'
+            },
             'messages': {
                 'user-interactions': {
                     'message-like': 'Ha messo "Mi piace" a un messaggio',
