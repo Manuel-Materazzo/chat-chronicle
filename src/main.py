@@ -82,3 +82,5 @@ if __name__ == "__main__":
         chat_log = parser.get_chat_log(day)
         summary = asyncio.run(get_summary(chat_log))
         writer.write(day, chat_log, summary)
+
+    writer.close()

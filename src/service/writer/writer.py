@@ -15,3 +15,7 @@ class Writer(ABC):
     @abstractmethod
     def write(self, date: str, chat: str, summary: str) -> None:
         pass
+
+    @abstractmethod
+    def close(self) -> None:
+        pass

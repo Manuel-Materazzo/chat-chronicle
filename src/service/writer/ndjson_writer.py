@@ -23,3 +23,5 @@ class NdJsonWriter(Writer):
         with open(file_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
+    def close(self) -> None:
+        pass

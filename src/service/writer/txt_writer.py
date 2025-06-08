@@ -24,3 +24,5 @@ class TxtWriter(Writer):
             if self.export_chat:
                 f.write(f"Chat History: \n{chat}\n\n\n")
 
+    def close(self) -> None:
+        pass
