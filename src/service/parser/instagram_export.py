@@ -1,10 +1,8 @@
 import re
 import json
-from collections import defaultdict
 from datetime import datetime
 
 from src.dto.instagram_export_message import InstagramExportMessage
-from src.dto.message import Message
 from src.service.parser.parser import Parser
 
 
@@ -95,19 +93,8 @@ class InstagramExport(Parser):
         if content == self.message_like or self.message_reaction in content:
             return ""
 
-        content = self.__handle_newlines(content)
+        content = self.handle_newlines(content)
         return self.__fix_unicodes(content)
-
-    def __handle_newlines(self, text: str) -> str:
-        """
-        Handles newlines on messages to reduce AI confusion.
-        :param text:
-        :return:
-        """
-        # replace newlines keeping punctuation semantics
-        for p in [":", ";", ",", "."]:
-            text = text.replace(f"{p}\n", f"{p} ")
-        return text.replace("\n", ". ")
 
     def __fix_unicodes(self, text: str) -> str:
         """

@@ -51,6 +51,17 @@ class Parser(ABC):
 
             self.message_bucket[day] = sorted_messages
 
+    def handle_newlines(self, text: str) -> str:
+        """
+        Handles newlines on messages to reduce AI confusion.
+        :param text:
+        :return:
+        """
+        # replace newlines keeping punctuation semantics
+        for p in [":", ";", ",", "."]:
+            text = text.replace(f"{p}\n", f"{p} ")
+        return text.replace("\n", ". ")
+
     def extract_chat_sessions(self, sorted_messages) -> list[dict[str, str]]:
         """
         Extracts the chat sessions and puts them in the previous day.
