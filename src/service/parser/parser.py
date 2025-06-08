@@ -53,6 +53,8 @@ class Parser(ABC):
         :param sorted_messages:
         :return:
         """
+        if len(sorted_messages) == 0:
+            return []
         prev_timestamp = sorted_messages[0]['timestamp']
         previous_day_carry_over = []
         for i, msg in enumerate(sorted_messages):
@@ -76,9 +78,10 @@ class Parser(ABC):
             prev_timestamp = msg['timestamp']
 
         # add carryover to the previous day
-        prev_day = prev_timestamp - timedelta(days=1)
-        prev_day_string = prev_day.date().isoformat()
-        self.message_bucket[prev_day_string].extend(previous_day_carry_over)
+        if len(previous_day_carry_over) > 0:
+            prev_day = prev_timestamp - timedelta(days=1)
+            prev_day_string = prev_day.date().isoformat()
+            self.message_bucket[prev_day_string].extend(previous_day_carry_over)
 
         return sorted_messages
 
