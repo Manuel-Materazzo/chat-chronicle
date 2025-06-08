@@ -14,6 +14,15 @@ parsing:
     enabled: true
     sleep-window-end-hour: 9
     sleep-window-start-hour: 2
+  messages:
+    user-interactions:
+      message-like: "Ha messo \"Mi piace\" a un messaggio"
+      message-reaction: "Ha aggiunto la reazione"
+    user-content:
+      posts-and-reels: "[Shared an internet video]"
+      video-uploads: "[Sent a video of himself]"
+      photo-uploads: "[Sent a photo of himself]"
+      audio-messages: "[Sent an audio message]"
 llm:
   max-tokens: 2000
   model-name: gemma-3-4b-it-qat
@@ -25,6 +34,7 @@ llm:
   temperature: 0.7
   top-p: 0.8
   user-prompt: |-
+    {{$chat_history}}
     Messages:
     {{$messages}}
     Diary entry:

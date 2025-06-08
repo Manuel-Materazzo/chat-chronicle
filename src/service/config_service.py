@@ -57,6 +57,18 @@ def get_configs(filename: str) -> dict:
                 'enabled': True,
                 'sleep-window-start-hour': 2,
                 'sleep-window-end-hour': 9,
+            },
+            'messages': {
+                'user-interactions': {
+                    'message-like': 'Ha messo "Mi piace" a un messaggio',
+                    'message-reaction': 'Ha aggiunto la reazione'
+                },
+                'user-content': {
+                    'posts-and-reels': '[Shared an internet video]',
+                    'video-uploads': '[Sent a video of himself]',
+                    'photo-uploads': '[Sent a photo of himself]',
+                    'audio-messages': '[Sent an audio message]'
+                }
             }
         }
         config['inference-service'] = {

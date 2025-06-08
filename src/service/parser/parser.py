@@ -11,13 +11,21 @@ class Parser(ABC):
     """
 
     @abstractmethod
-    def __init__(self, paths: list[str], chat_sessions_enabled: bool = False, sleep_window_start: int = 2,
+    def __init__(self, paths: list[str], system_messages: dict, chat_sessions_enabled: bool = False, sleep_window_start: int = 2,
                  sleep_window_end: int = 9) -> None:
         self.message_bucket = defaultdict(list[Message])
         self.gap_threshold = timedelta(hours=3)
         self.chat_sessions_enabled = chat_sessions_enabled
         self.sleep_window_start = time(sleep_window_start, 0)
         self.sleep_window_end = time(sleep_window_end, 0)
+
+        # get messages from configs
+        self.message_like = system_messages.get("user-interactions", {}).get("message-like", "")
+        self.message_reaction = system_messages.get("user-interactions", {}).get("message-reaction", "Added reaction")
+        self.message_reel = system_messages.get("user-content", {}).get("posts-and-reels", "[Shared an internet video]")
+        self.message_video = system_messages.get("user-content", {}).get("video-uploads", "[Sent a video of himself]")
+        self.message_photo = system_messages.get("user-content", {}).get("photo-uploads", "[Sent a photo of himself]")
+        self.message_audio = system_messages.get("user-content", {}).get("audio-messages", "[Sent an audio message]")
 
     def sort_bucket(self):
         """

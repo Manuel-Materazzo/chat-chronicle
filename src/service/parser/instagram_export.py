@@ -10,9 +10,10 @@ from src.service.parser.parser import Parser
 
 class InstagramExport(Parser):
 
-    def __init__(self, paths: list[str], chat_sessions_enabled: bool = False, sleep_window_start: int = 2,
+    def __init__(self, paths: list[str], system_messages: dict, chat_sessions_enabled: bool = False,
+                 sleep_window_start: int = 2,
                  sleep_window_end: int = 9):
-        super().__init__(paths, chat_sessions_enabled,sleep_window_start, sleep_window_end)
+        super().__init__(paths, system_messages, chat_sessions_enabled, sleep_window_start, sleep_window_end)
 
         # read files and load bucket
         for path in paths:
@@ -85,26 +86,23 @@ class InstagramExport(Parser):
         :return:
         """
 
-        # TODO: localize
-
         # handle reels
         if raw_message.get("share", None) is not None:
-            return "[Shared an internet video]"
+            return self.message_reel
         # handle videos
-        if raw_message.get("share", None) is not None:
-            return "[Shared an internet video]"
-        # handle audios TODO: transcribe?
-        if raw_message.get("audio_files", None) is not None:
-            return "[Sent an audio message]"
+        if raw_message.get("videos", None) is not None:
+            return self.message_video
         # handle photos
         if raw_message.get("photos", None) is not None:
-            return "[Sent a photo of himself]"
+            return self.message_photo
+        # handle audios TODO: transcribe?
+        if raw_message.get("audio_files", None) is not None:
+            return self.message_audio
 
-        content = raw_message.get("content", "");
+        content = raw_message.get("content", "")
 
-        # handle message likes
-        # TODO: localize
-        if content == "Ha messo \"Mi piace\" a un messaggio" or "Ha aggiunto la reazione" in content:
+        # handle message likes and reactions
+        if content == self.message_like or self.message_reaction in content:
             return ""
 
         # TODO: handle newlines on messages
