@@ -24,24 +24,6 @@ class InstagramExport(Parser):
 
         self.sort_bucket()
 
-    def get_messages_grouped(self) -> dict[str, list[Message]]:
-        return self.message_bucket
-
-    def get_messages(self, date: str) -> list[Message]:
-        return self.message_bucket.get(date, [])
-
-    def get_available_days(self) -> list[str]:
-        return list(self.message_bucket.keys())
-
-    def get_chat_log(self, date: str) -> str:
-        messages = self.get_messages(date)
-        diary = ""
-        for message in messages:
-            timestamp = message.get("timestamp")
-            time_string = f"{timestamp.hour:02}:{timestamp.minute:02}"
-            diary = diary + f"[{time_string}] {message.get('sender_name')}: {message.get('content')}\n"
-        return diary
-
     def __read(self, path: str) -> list[InstagramExportMessage]:
         """
         Reads instagram exported json

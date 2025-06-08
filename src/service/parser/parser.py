@@ -89,31 +89,37 @@ class Parser(ABC):
 
         return sorted_messages
 
-    @abstractmethod
     def get_messages_grouped(self) -> dict[str, list[Message]]:
         """
         Returns a dictionary where each key is a date and each value is a list of messages.
         :return:
         """
+        return self.message_bucket
 
-    @abstractmethod
     def get_messages(self, date: str) -> list[Message]:
         """
         Returns list of messages sent on the provided date.
         :param date:
         :return:
         """
+        return self.message_bucket.get(date, [])
 
-    @abstractmethod
     def get_available_days(self) -> list[str]:
         """
         Returns a list of days with messages available.
         :return:
         """
+        return list(self.message_bucket.keys())
 
-    @abstractmethod
     def get_chat_log(self, date: str) -> str:
         """
         Returns a list of days with messages available.
         :return:
         """
+        messages = self.get_messages(date)
+        diary = ""
+        for message in messages:
+            timestamp = message.get("timestamp")
+            time_string = f"{timestamp.hour:02}:{timestamp.minute:02}"
+            diary = diary + f"[{time_string}] {message.get('sender_name')}: {message.get('content')}\n"
+        return diary
