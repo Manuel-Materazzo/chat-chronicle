@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from src.service.writer.writer import Writer
 
 
@@ -5,6 +7,7 @@ class TxtWriter(Writer):
 
     def __init__(self, folder: str, single_file: bool = True, export_chat: bool = False) -> None:
         super().__init__(folder, single_file, export_chat)
+        self.single_file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M')}_full-chronicle.txt"
 
     def write(self, date: str, chat: str, summary: str) -> None:
 
