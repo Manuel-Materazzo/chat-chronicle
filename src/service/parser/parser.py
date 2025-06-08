@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from datetime import timedelta, time
+from datetime import timedelta, time, datetime
 
 from src.dto.message import Message
 
@@ -16,12 +16,16 @@ class Parser(ABC):
                  ignore_chat_before: str = "2150-01-01", ignore_chat_after: str = "1990-01-01") -> None:
         self.message_bucket = defaultdict(list[Message])
         self.gap_threshold = timedelta(hours=3)
+
         self.chat_sessions_enabled = chat_sessions_enabled
         self.sleep_window_start = time(sleep_window_start, 0)
         self.sleep_window_end = time(sleep_window_end, 0)
+
         self.ignore_chat_enabled = ignore_chat_enabled
-        self.ignore_chat_before = ignore_chat_before
-        self.ignore_chat_after = ignore_chat_after
+        if ignore_chat_enabled and len(ignore_chat_before) > 0 and len(ignore_chat_after) > 0:
+            # parse dates
+            self.ignore_chat_before_date = datetime.strptime(ignore_chat_before, '%Y-%m-%d').date()
+            self.ignore_chat_after_date = datetime.strptime(ignore_chat_after, '%Y-%m-%d').date()
 
         # get messages from configs
         self.message_like = system_messages.get("user-interactions", {}).get("message-like", "")

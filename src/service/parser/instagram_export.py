@@ -66,10 +66,8 @@ class InstagramExport(Parser):
             day = timestamp.date()
 
             # ignore message if before or after set date
-            if self.ignore_chat_enabled and len(self.ignore_chat_before) > 0 and len(self.ignore_chat_after) > 0:
-                before_date = datetime.strptime(self.ignore_chat_before, '%Y-%m-%d').date()
-                after_date = datetime.strptime(self.ignore_chat_after, '%Y-%m-%d').date()
-                if day < before_date or day > after_date:
+            if self.ignore_chat_enabled:
+                if day < self.ignore_chat_before_date or day > self.ignore_chat_after_date:
                     continue
 
             day_string = day.isoformat()
