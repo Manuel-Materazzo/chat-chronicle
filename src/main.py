@@ -9,7 +9,7 @@ from semantic_kernel.functions.kernel_arguments import KernelArguments
 from semantic_kernel.kernel import Kernel
 
 from src.service.config_service import get_configs
-from src.service.parser.parser_factory import parser_factory
+from src.service.parser.parser_factory import parser_factory, ext_factory
 from src.service.writer.writer_factory import writer_factory
 
 # read configs
@@ -64,10 +64,11 @@ if __name__ == "__main__":
     input_directory = os.fsencode(input_path)
 
     # generate files list
+    extension = ext_factory(config)
     files = []
     for file in os.listdir(input_directory):
         filename = os.fsdecode(file)
-        if filename.endswith(".json"):
+        if filename.lower().endswith(extension):
             files.append(f"{input_path}/{filename}")
 
     # read files
