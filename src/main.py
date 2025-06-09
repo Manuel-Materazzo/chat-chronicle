@@ -1,12 +1,4 @@
 import os
-import asyncio
-
-from openai import AsyncOpenAI
-
-from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
-from semantic_kernel.contents.chat_history import ChatHistory
-from semantic_kernel.functions.kernel_arguments import KernelArguments
-from semantic_kernel.kernel import Kernel
 
 from src.service.config_service import get_configs
 from src.service.parser.parser_factory import parser_factory, ext_factory
@@ -76,6 +68,11 @@ if __name__ == "__main__":
 
     # instantiate writer
     writer = writer_factory(config)
+
+    # create AI service
+    ai_service = AiService(config)
+
+    done_count = 1
 
     # get summary and write each day diary
     for day in parser.get_available_days():
