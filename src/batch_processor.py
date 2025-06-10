@@ -2,7 +2,8 @@ import os
 
 from src.service.ai_service import AiService
 from src.service.logging_service import LoggingService
-from src.service.parser.parser_factory import parser_factory, ext_factory
+from src.service.parser.parser_factory import parser_factory
+from src.service.reader.reader_factory import reader_factory
 from src.service.writer.writer_factory import writer_factory
 
 
@@ -17,29 +18,31 @@ def process_all(config: dict):
     input_directory = os.fsencode(input_path)
     logger.debug(f'Input directory: {input_directory}')
 
+    # instantiate reader
+    reader = reader_factory(config)
+
     # generate files list
-    extension = ext_factory(config)
-    logger.debug(f'Listing files with {extension} extension...')
-    files = []
-    for file in os.listdir(input_directory):
-        filename = os.fsdecode(file)
-        logger.debug(f'File or folder found: {filename}')
-        if filename.lower().endswith(extension):
-            logger.debug(f'Saving it as: {input_path}/{filename}')
-            files.append(f"{input_path}/{filename}")
+    logger.debug(f'Listing files with {reader.get_extension()} extension...')
+    files = reader.get_file_list(input_directory)
 
-    if len(files) == 0:
-        raise FileNotFoundError(f"No {extension} files found on {input_path}")
-    else:
-        logger.info(f'Found {len(files)} files to process...')
+    # initialize parser
+    logger.debug('Initializing parser...')
+    parser = parser_factory(config)
 
-    logger.debug('Reading files...')
+    # read and parse files
+    for file in files:
+        logger.debug(f'Reading {file}...')
+        raw_messages = reader.read(file)
+        logger.debug(f'Standardizing {file}...')
+        standardized_messages = reader.standardize_messages(raw_messages)
+        logger.debug(f'Parsing {file}...')
+        parser.parse(standardized_messages)
 
-    # read files
-    parser = parser_factory(config, files)
+    # sort bucket
+    logger.debug('Sorting parser bucket...')
+    parser.sort_bucket()
 
     day_list = parser.get_available_days()
-
     logger.info(f'Found {len(day_list)} days of messages...')
 
     # instantiate writer
