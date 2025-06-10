@@ -11,9 +11,9 @@ class Parser(ABC):
     """
 
     @abstractmethod
-    def __init__(self, paths: list[str], system_messages: dict, chat_sessions_enabled: bool = False,
-                 sleep_window_start: int = 2, sleep_window_end: int = 9, ignore_chat_enabled: bool = False,
-                 ignore_chat_before: str = "2150-01-01", ignore_chat_after: str = "1990-01-01") -> None:
+    def __init__(self, chat_sessions_enabled: bool = False, sleep_window_start: int = 2, sleep_window_end: int = 9,
+                 ignore_chat_enabled: bool = False, ignore_chat_before: str = "2150-01-01",
+                 ignore_chat_after: str = "1990-01-01") -> None:
         self.message_bucket = defaultdict(list[Message])
         self.gap_threshold = timedelta(hours=3)
 
@@ -27,13 +27,11 @@ class Parser(ABC):
             self.ignore_chat_before_date = datetime.strptime(ignore_chat_before, '%Y-%m-%d').date()
             self.ignore_chat_after_date = datetime.strptime(ignore_chat_after, '%Y-%m-%d').date()
 
-        # get messages from configs
-        self.message_like = system_messages.get("user-interactions", {}).get("message-like", "")
-        self.message_reaction = system_messages.get("user-interactions", {}).get("message-reaction", "Added reaction")
-        self.message_reel = system_messages.get("user-content", {}).get("posts-and-reels", "[Shared an internet video]")
-        self.message_video = system_messages.get("user-content", {}).get("video-uploads", "[Sent a video of himself]")
-        self.message_photo = system_messages.get("user-content", {}).get("photo-uploads", "[Sent a photo of himself]")
-        self.message_audio = system_messages.get("user-content", {}).get("audio-messages", "[Sent an audio message]")
+    @abstractmethod
+    def parse(self, messages: list[Message]) -> None:
+        """
+            Parse the messages given and add them to the message bucket.
+        """
 
     def sort_bucket(self):
         """
