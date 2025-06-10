@@ -1,8 +1,9 @@
 from src.service.logging_service import LoggingService
 from src.service.reader.reader import Reader
+from abc import ABC
 
 
-class TxtReader(Reader):
+class TxtReader(Reader, ABC):
 
     def __init__(self, logging_service: LoggingService):
         super().__init__(logging_service, ".txt")

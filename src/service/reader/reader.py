@@ -1,6 +1,7 @@
 import os
 from abc import ABC, abstractmethod
 
+from src.dto.message import Message
 from src.service.logging_service import LoggingService
 
 
@@ -35,8 +36,15 @@ class Reader(ABC):
         return files
 
     @abstractmethod
-    def read(self, path: str):
+    def read(self, path: str) -> any:
         """
         Reads the provided file
+        :return:
+        """
+
+    @abstractmethod
+    def standardize_messages(self, lines: any) -> list[Message]:
+        """
+        Standardize the messages format.
         :return:
         """
