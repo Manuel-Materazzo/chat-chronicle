@@ -5,6 +5,7 @@ from yaml.representer import SafeRepresenter
 from yaml import SafeLoader, SafeDumper, dump, load
 
 from src.dto.enums.input_file_type import InputFileType
+from src.dto.enums.log_levels import LogLevel
 
 config = dict()
 
@@ -51,6 +52,9 @@ def get_configs(filename: str) -> dict:
             'path': '../output/',
             'merge-to-one-file': True,
             'export-chat-log': False,
+        }
+        config['logs'] = {
+            'level': LogLevel.INFO,
         }
         config['parsing'] = {
             'chat-sessions': {
