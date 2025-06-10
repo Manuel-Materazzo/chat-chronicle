@@ -25,8 +25,8 @@ class Reader(ABC):
             filename = os.fsdecode(file)
             self.logger.debug(f'File or folder found: {filename}')
             if filename.lower().endswith(self.extension):
-                self.logger.debug(f'Saving it as: {input_directory}/{filename}')
-                files.append(f"{input_directory}/{filename}")
+                self.logger.debug(f'Saving it as: {input_directory.decode()}/{filename}')
+                files.append(f"{input_directory.decode()}/{filename}")
 
         if len(files) == 0:
             raise FileNotFoundError(f"No {self.extension} files found on {input_directory}")
