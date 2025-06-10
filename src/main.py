@@ -2,14 +2,15 @@ import os
 
 from src.service.config_service import get_configs
 from src.service.ai_service import AiService
-from src.service.logging_service import get_logger
+from src.service.logging_service import LoggingService
 from src.service.parser.parser_factory import parser_factory, ext_factory
 from src.service.writer.writer_factory import writer_factory
 
 # read configs
 config = get_configs('../config.yml')
 
-logger = get_logger(config, __name__)
+logging_service = LoggingService(config)
+logger = logging_service.get_logger(__name__)
 
 if __name__ == "__main__":
     # read configs
