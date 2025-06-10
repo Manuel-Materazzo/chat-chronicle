@@ -6,6 +6,7 @@ from yaml import SafeLoader, SafeDumper, dump, load
 
 from src.dto.enums.input_file_type import InputFileType
 from src.dto.enums.log_levels import LogLevel
+from src.dto.enums.writer_type import WriterType
 
 config = dict()
 
@@ -48,7 +49,7 @@ def get_configs(filename: str) -> dict:
             'path': '../input/',
         }
         config['output'] = {
-            'type': InputFileType.INSTAGRAM_EXPORT,
+            'type': WriterType.TXT,
             'path': '../output/',
             'merge-to-one-file': True,
             'export-chat-log': False,
