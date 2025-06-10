@@ -12,7 +12,7 @@ def process_all(config: dict):
     logger = logging_service.get_logger(__name__)
 
     # read configs
-    input_path = config.get('input', {}).get('path', './')
+    input_path = config.get('batch', {}).get('input', {}).get('path', './')
     logger.debug(f'input_path: {input_path}')
     input_directory = os.fsencode(input_path)
     logger.debug(f'Input directory: {input_directory}')

@@ -39,20 +39,22 @@ def get_configs(filename: str) -> dict:
     global config
 
     # skip if already loaded
-    if config.get('Input', None) is not None:
+    if config.get('logs', None) is not None:
         return config
 
     # output default config file if not found
     if not os.path.isfile(filename):
-        config['input'] = {
-            'type': InputFileType.INSTAGRAM_EXPORT,
-            'path': './input/',
-        }
-        config['output'] = {
-            'type': WriterType.TXT,
-            'path': './output/',
-            'merge-to-one-file': True,
-            'export-chat-log': False,
+        config['batch'] = {
+            'input': {
+                'type': InputFileType.INSTAGRAM_EXPORT,
+                'path': './input/',
+            },
+            'output': {
+                'type': WriterType.TXT,
+                'path': './output/',
+                'merge-to-one-file': True,
+                'export-chat-log': False,
+            }
         }
         config['logs'] = {
             'level': LogLevel.INFO,

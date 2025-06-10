@@ -12,10 +12,10 @@ def writer_factory(config: dict) -> Writer:
     :return:
     """
     # get configs
-    output_path = config.get('output', {}).get('path', './')
-    file_type = config.get('output', {}).get('type', WriterType.TXT)
-    single_file = config.get('output', {}).get('merge-to-one-file', True)
-    export_chat = config.get('output', {}).get('export-chat-log', False)
+    output_path = config.get('batch', {}).get('output', {}).get('path', './')
+    file_type = config.get('batch', {}).get('output', {}).get('type', WriterType.TXT)
+    single_file = config.get('batch', {}).get('output', {}).get('merge-to-one-file', True)
+    export_chat = config.get('batch', {}).get('output', {}).get('export-chat-log', False)
 
     if file_type == WriterType.TXT:
         return TxtWriter(output_path, single_file, export_chat)
