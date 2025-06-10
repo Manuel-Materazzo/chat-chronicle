@@ -1,18 +1,16 @@
 import os
 
-from src.service.config_service import get_configs
 from src.service.ai_service import AiService
 from src.service.logging_service import LoggingService
 from src.service.parser.parser_factory import parser_factory, ext_factory
 from src.service.writer.writer_factory import writer_factory
 
-# read configs
-config = get_configs('../config.yml')
 
-logging_service = LoggingService(config)
-logger = logging_service.get_logger(__name__)
+def process_all(config: dict):
+    # generate loggers
+    logging_service = LoggingService(config)
+    logger = logging_service.get_logger(__name__)
 
-if __name__ == "__main__":
     # read configs
     input_path = config.get('input', {}).get('path', './')
     logger.debug(f'input_path: {input_path}')
@@ -54,12 +52,17 @@ if __name__ == "__main__":
 
     # get summary and write each day diary
     for day in parser.get_available_days():
+        # get chat log
         logger.debug(f'Getting chat log for {day}...')
         chat_log = parser.get_chat_log(day)
+        # compute summary
         logger.debug(f'Generating summary for {day}...')
         summary = ai_service.get_summary_sync(chat_log)
+        # write to file
         logger.debug(f'Writing file for {day}...')
         writer.write(day, chat_log, summary)
+
         logger.info(f'{done_count}/{len(day_list)} done!')
+        done_count = done_count + 1
 
     writer.close()

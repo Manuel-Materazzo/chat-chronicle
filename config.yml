@@ -3,10 +3,10 @@ inference-service:
   endpoint: http://127.0.0.1:1234/v1
 input:
   type: INSTAGRAM_EXPORT
-  path: ../input/
+  path: ./input/
 output:
   type: TXT
-  path: ../output/
+  path: ./output/
   merge-to-one-file: true
   export-chat-log: false
 logs:

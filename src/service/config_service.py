@@ -46,11 +46,11 @@ def get_configs(filename: str) -> dict:
     if not os.path.isfile(filename):
         config['input'] = {
             'type': InputFileType.INSTAGRAM_EXPORT,
-            'path': '../input/',
+            'path': './input/',
         }
         config['output'] = {
             'type': WriterType.TXT,
-            'path': '../output/',
+            'path': './output/',
             'merge-to-one-file': True,
             'export-chat-log': False,
         }
