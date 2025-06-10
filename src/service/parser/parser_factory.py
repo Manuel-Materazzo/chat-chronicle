@@ -30,18 +30,3 @@ def parser_factory(config: dict, paths: list[str]) -> Parser:
 
     message = f"Input file type not supported, please choose one of the following: {[e for e in InputFileType]}"
     raise ValueError(message)
-
-
-def ext_factory(config: dict) -> str:
-    """
-    Returns the correct extension for the file type.
-    :param config:
-    :return:
-    """
-    # get configs
-    fileType = config.get('batch', {}).get('input', {}).get('type', InputFileType.INSTAGRAM_EXPORT)
-
-    if fileType == InputFileType.INSTAGRAM_EXPORT:
-        return ".json"
-    elif fileType == InputFileType.WHATSAPP_EXPORT:
-        return ".txt"
