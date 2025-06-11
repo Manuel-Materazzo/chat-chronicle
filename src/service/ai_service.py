@@ -34,9 +34,15 @@ class AiService:
             template_format="semantic-kernel",
             prompt_execution_settings=settings,
         )
+        self.concurrency_limit = config.get('inference-service', {}).get('concurrency-limit', 2)
+        self.semaphore = asyncio.Semaphore(self.concurrency_limit)
 
     def get_summary_sync(self, chat_log: str) -> str:
         return asyncio.run(self.__get_ai_full_response(chat_log))
+
+    async def get_summary_async(self, chat_log: str) -> str:
+        async with self.semaphore:
+            return await self.__get_ai_full_response(chat_log)
 
     async def __get_ai_full_response(self, messages: str) -> str:
         result = await self.kernel.invoke(

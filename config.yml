@@ -1,6 +1,7 @@
 inference-service:
   api-key: xxx
   endpoint: http://127.0.0.1:1234/v1 # LLM provider endpoint (OpenAI compatible)
+  concurrency-limit: 1 # How many requests can be executed parallely
 batch:
   input:
     type: INSTAGRAM_EXPORT # or WHATSAPP_EXPORT

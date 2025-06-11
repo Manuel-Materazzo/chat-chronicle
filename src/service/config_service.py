@@ -86,6 +86,7 @@ def get_configs(filename: str) -> dict:
         config['inference-service'] = {
             'endpoint': 'http://127.0.0.1:1234/v1',
             'api-key': 'xxx',
+            'concurrency-limit': '2'
         }
         config['llm'] = {
             'model-name': 'gemma-3-4b-it-qat',
