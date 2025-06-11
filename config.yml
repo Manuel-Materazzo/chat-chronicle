@@ -1,24 +1,24 @@
 inference-service:
   api-key: xxx
-  endpoint: http://127.0.0.1:1234/v1
+  endpoint: http://127.0.0.1:1234/v1 # LLM provider endpoint (OpenAI compatible)
 batch:
   input:
-    type: INSTAGRAM_EXPORT
-    path: ./input/
+    type: INSTAGRAM_EXPORT # or WHATSAPP_EXPORT
+    path: ./input/ # Path to the directory containing the exported chat files
   output:
-    type: TXT
-    path: ./output/
-    merge-to-one-file: true
-    export-chat-log: false
+    type: TXT # or JSON, NDJSON
+    path: ./output/ # Path to the directory where the output will be written
+    merge-to-one-file: true # Generate only one outout file, instead of a file for every day
+    export-chat-log: false # Add the raw chat log to the output file
 logs:
   level: INFO
 parsing:
   chat-sessions:
-    enabled: true
-    sleep-window-end-hour: 9
-    sleep-window-start-hour: 2
+    enabled: true # End the day at sleep time instead of midnight
+    sleep-window-end-hour: 9 # earliest hour of the "Goodmorning" text
+    sleep-window-start-hour: 2 # earliest hour of the "Goodnight" text
   ignore-chat:
-    enabled: false
+    enabled: false # Ignore messages sent before and after these dates
     ignore-before: "1990-01-01"
     ignore-after: "2150-01-01"
   messages:
