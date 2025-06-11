@@ -2,9 +2,9 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 
 from src.dto.enums.input_file_type import InputFileType
-from src.dto.schemas.chat_chronicle_request_schema import ChatChronicleRequestSchema
 from src.dto.schemas.instagram_export_request_schema import InstagramExportRequestSchema
 from src.dto.schemas.summary_response_schema import SummaryResponseSchema
+from src.dto.schemas.whatsapp_export_request_schema import WhatsappExportRequestSchema
 from src.service.ai_service import AiService
 from src.service.logging_service import LoggingService
 from src.service.parser.parser_factory import parser_factory
@@ -59,28 +59,23 @@ def execute_summary_request(input_type: InputFileType, current_config: dict, raw
     }
 
 
-@blp.route("/chat-chronicle")
-class CCMessageResource(MethodView):
-    @blp.arguments(ChatChronicleRequestSchema)
-    @blp.response(200, SummaryResponseSchema)
-    def post(self, payload):
-        """Creates a diary page from a list of messages in the standard ChatChronicle format"""
-        return payload
-
-
 @blp.route("/instagram-export")
 class IEMessageResource(MethodView):
-    @blp.arguments(ChatChronicleRequestSchema)
+    @blp.arguments(InstagramExportRequestSchema)
     @blp.response(200, SummaryResponseSchema)
     def post(self, payload):
         """Creates a diary page from a list of messages in the Instagram Export format"""
-        return message_data
+        current_config = app_config.copy()
+        current_config.update(payload["configs"])
+        return execute_summary_request(InputFileType.INSTAGRAM_EXPORT, current_config, payload)
 
 
 @blp.route("/whatsapp-export")
 class WEMessageResource(MethodView):
-    @blp.arguments(ChatChronicleRequestSchema)
+    @blp.arguments(WhatsappExportRequestSchema)
     @blp.response(200, SummaryResponseSchema)
     def post(self, payload):
         """Creates a diary page from a list of messages in the Whatsapp Export format"""
-        return payload
+        current_config = app_config.copy()
+        current_config.update(payload["configs"])
+        return execute_summary_request(InputFileType.WHATSAPP_EXPORT, current_config, payload["messages"])
