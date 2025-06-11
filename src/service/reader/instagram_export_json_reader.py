@@ -13,10 +13,13 @@ class InstagramExportJsonReader(JsonReader):
         # get messages from configs
         self.message_like = system_messages.get("user-interactions", {}).get("message-like", "")
         self.message_reaction = system_messages.get("user-interactions", {}).get("message-reaction", "Added reaction")
+        self.call_started_message = system_messages.get("user-interactions", {}).get("call-start", "Started a call")
         self.message_reel = system_messages.get("user-content", {}).get("posts-and-reels", "[Shared an internet video]")
         self.message_video = system_messages.get("user-content", {}).get("video-uploads", "[Sent a video of himself]")
         self.message_photo = system_messages.get("user-content", {}).get("photo-uploads", "[Sent a photo of himself]")
         self.message_audio = system_messages.get("user-content", {}).get("audio-messages", "[Sent an audio message]")
+        self.call_start = system_messages.get("user-content", {}).get("call-start", "[Call started]")
+        self.call_end = system_messages.get("user-content", {}).get("call-end", "[Call ended]")
 
     def standardize_messages(self, lines: dict) -> list[Message]:
         messages: list[Message] = []
@@ -48,6 +51,9 @@ class InstagramExportJsonReader(JsonReader):
         # handle reels
         if raw_message.get("share", None) is not None:
             return self.message_reel
+        # handle calls
+        if raw_message.get("call_duration", None) is not None:
+            return self.call_end
         # handle videos
         if raw_message.get("videos", None) is not None:
             return self.message_video
@@ -59,6 +65,10 @@ class InstagramExportJsonReader(JsonReader):
             return self.message_audio
 
         content = raw_message.get("content", "")
+
+        # handle call start
+        if content == self.call_started_message:
+            return self.call_start
 
         # handle message likes and reactions
         if content == self.message_like or self.message_reaction in content:

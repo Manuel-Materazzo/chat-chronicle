@@ -25,7 +25,10 @@ parsing:
     user-interactions:
       message-like: "Ha messo \"Mi piace\" a un messaggio"
       message-reaction: "Ha aggiunto la reazione"
+      call-start: "avviato una videochiamata"
     user-content:
+      call-start: "[Call started]"
+      call-end: "[Call ended]"
       posts-and-reels: "[Shared an internet video]"
       video-uploads: "[Sent a video of himself]"
       photo-uploads: "[Sent a photo of himself]"

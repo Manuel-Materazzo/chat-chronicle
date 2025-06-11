@@ -5,6 +5,7 @@ class InstagramExportMessage(TypedDict):
     sender_name: str
     timestamp_ms: int
     content: str
+    call_duration: int
     reactions: list
     share: dict
     videos: list
