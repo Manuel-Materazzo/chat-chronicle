@@ -1,5 +1,6 @@
 import asyncio
 
+import httpx
 from openai import AsyncOpenAI
 from semantic_kernel.connectors.ai import PromptExecutionSettings
 
@@ -71,9 +72,21 @@ class AiService:
         :param config:
         :return:
         """
+        # Get timeouts from config
+        timeout = config.get('inference-service', {}).get('timeout', 600)
+        connect_timeout = config.get('inference-service', {}).get('connect-timeout', 600)
+        read_timeout = timeout - connect_timeout * 2
+
+        # Instantiate clients
         openAIClient: AsyncOpenAI = AsyncOpenAI(
             api_key=config.get('inference-service', {}).get('api-key', ''),
             base_url=config.get('inference-service', {}).get('endpoint', ''),
+            timeout=httpx.Timeout(
+                timeout=timeout,
+                connect=connect_timeout,
+                read=read_timeout,
+                write=connect_timeout
+            )
         )
         return OpenAIChatCompletion(
             service_id=service_id,
