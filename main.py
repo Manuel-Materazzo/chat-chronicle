@@ -1,5 +1,6 @@
 import sys
 from src.batch_processor import process_all
+from src.api_server import start_server
 from src.dto.enums.run_mode import RunMode
 from src.service.config_service import get_configs
 from src.service.logging_service import LoggingService
@@ -16,8 +17,7 @@ if __name__ == "__main__":
     if mode == RunMode.BATCH:
         process_all(config)
     elif mode == RunMode.API:
-        pass
-        #app.run(host="0.0.0.0", port=8000)
+        start_server(config)
     else:
         message = f"Application run mode not supported, please choose one of the following: {[e for e in RunMode]}"
         raise ValueError(message)

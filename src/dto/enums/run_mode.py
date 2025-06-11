@@ -2,5 +2,5 @@ from enum import StrEnum
 
 
 class RunMode(StrEnum):
-    BATCH = "BATCH"
-    API = "API"
+    BATCH = "batch"
+    API = "api"
