@@ -4,14 +4,14 @@ from src.service.parser.parser import Parser
 from src.service.parser.whatsapp_export import WhatsappExport
 
 
-def parser_factory(config: dict) -> Parser:
+def parser_factory(fileType: InputFileType, config: dict) -> Parser:
     """
     Instantiates the parser for the provided file type from the dictionary and returns it.
+    :param fileType:
     :param config: Dictionary containing the configuration of the application.
     :return:
     """
     # get configs
-    fileType = config.get('batch', {}).get('input', {}).get('type', InputFileType.INSTAGRAM_EXPORT)
     chat_sessions_enabled = config.get('parsing', {}).get('chat-sessions', {}).get('enabled', True)
     sleep_window_start = config.get('parsing', {}).get('chat-sessions', {}).get('sleep-window-start-hour', 2)
     sleep_window_end = config.get('parsing', {}).get('chat-sessions', {}).get('sleep-window-end-hour', 9)

@@ -5,14 +5,14 @@ from src.service.reader.reader import Reader
 from src.service.reader.whatsapp_txt_reader import WhatsappTxtReader
 
 
-def reader_factory(config: dict) -> Reader:
+def reader_factory(fileType: InputFileType, config: dict) -> Reader:
     """
     Returns the correct reader for the file type.
+    :param fileType:
     :param config:
     :return:
     """
     # get configs
-    fileType = config.get('batch', {}).get('input', {}).get('type', InputFileType.INSTAGRAM_EXPORT)
     system_messages = config.get('parsing', {}).get('messages', {})
     logging_service = LoggingService(config)
 
