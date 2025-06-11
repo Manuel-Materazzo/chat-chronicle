@@ -1,5 +1,7 @@
+from flask import jsonify
 from flask.views import MethodView
 from flask_smorest import Blueprint
+from threading import Semaphore
 
 from src.dto.enums.input_file_type import InputFileType
 from src.dto.schemas.instagram_export_request_schema import InstagramExportRequestSchema
@@ -16,15 +18,19 @@ blp = Blueprint("summarize", "usesummarizers", url_prefix="/summarize",
 app_config: dict = {}
 logging_service: LoggingService = None
 ai_service: AiService = None
+ai_semaphore: Semaphore = None
 
 
 def set_config(config: dict):
     global app_config
     global logging_service
     global ai_service
+    global ai_semaphore
     logging_service = LoggingService(config)
     app_config = config
     ai_service = AiService(config)
+    concurrency_limit = config.get('inference-service', {}).get('concurrency-limit', 2)
+    ai_semaphore = Semaphore(concurrency_limit)
 
 
 def execute_summary_request(input_type: InputFileType, current_config: dict, raw_messages: any) -> dict:
@@ -65,9 +71,15 @@ class IEMessageResource(MethodView):
     @blp.response(200, SummaryResponseSchema)
     def post(self, payload):
         """Creates a diary page from a list of messages in the Instagram Export format"""
+        acquired = ai_semaphore.acquire(blocking=False)
+        if not acquired:
+            return jsonify({"error": "AI service busy, try again later"}), 503
         current_config = app_config.copy()
         current_config.update(payload["configs"])
-        return execute_summary_request(InputFileType.INSTAGRAM_EXPORT, current_config, payload)
+        try:
+            return execute_summary_request(InputFileType.INSTAGRAM_EXPORT, current_config, payload)
+        finally:
+            ai_semaphore.release()
 
 
 @blp.route("/whatsapp-export")
@@ -76,6 +88,12 @@ class WEMessageResource(MethodView):
     @blp.response(200, SummaryResponseSchema)
     def post(self, payload):
         """Creates a diary page from a list of messages in the Whatsapp Export format"""
+        acquired = ai_semaphore.acquire(blocking=False)
+        if not acquired:
+            return jsonify({"error": "AI service busy, try again later"}), 503
         current_config = app_config.copy()
         current_config.update(payload["configs"])
-        return execute_summary_request(InputFileType.WHATSAPP_EXPORT, current_config, payload["messages"])
+        try:
+            return execute_summary_request(InputFileType.WHATSAPP_EXPORT, current_config, payload["messages"])
+        finally:
+            ai_semaphore.release()
