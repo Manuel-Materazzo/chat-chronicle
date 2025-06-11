@@ -56,7 +56,7 @@ def process_all(config: dict):
     done_count = 1
 
     # get summary and write each day diary
-    for day in parser.get_available_days():
+    for day in day_list:
         # get chat log
         logger.debug(f'Getting chat log for {day}...')
         chat_log = parser.get_chat_log(day)
