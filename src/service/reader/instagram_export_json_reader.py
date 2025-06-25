@@ -4,12 +4,13 @@ from src.dto.instagram_export_message import InstagramExportMessage
 from src.dto.message import Message
 from src.service.logging_service import LoggingService
 from src.service.reader.json_reader import JsonReader
+from langchain_core.messages.utils import count_tokens_approximately
 
 
 class InstagramExportJsonReader(JsonReader):
 
-    def __init__(self, system_messages: dict, logging_service: LoggingService):
-        super().__init__(logging_service)
+    def __init__(self, system_messages: dict, logging_service: LoggingService, chars_per_token: float = 4.0):
+        super().__init__(logging_service, chars_per_token=chars_per_token)
         # get messages from configs
         self.message_like = system_messages.get("user-interactions", {}).get("message-like", "")
         self.message_reaction = system_messages.get("user-interactions", {}).get("message-reaction", "Added reaction")
@@ -30,10 +31,12 @@ class InstagramExportJsonReader(JsonReader):
 
             content = self.__get_message_content(raw_message)
             sender = raw_message.get("sender_name", "unknown")
+            token_count = count_tokens_approximately(content, chars_per_token=self.chars_per_token)
             messages.append({
                 'sender_name': sender,
                 'timestamp': timestamp,
                 'content': content,
+                'token_count': token_count
             })
 
         return messages

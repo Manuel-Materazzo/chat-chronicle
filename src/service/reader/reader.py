@@ -7,9 +7,10 @@ from src.service.logging_service import LoggingService
 
 class Reader(ABC):
 
-    def __init__(self, logging_service: LoggingService, extension: str):
+    def __init__(self, logging_service: LoggingService, extension: str, chars_per_token: float = 4.0):
         self.extension = extension
         self.logger = logging_service.get_logger(__name__)
+        self.chars_per_token = chars_per_token
 
     def get_extension(self):
         return self.extension

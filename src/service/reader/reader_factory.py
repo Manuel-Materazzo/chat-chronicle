@@ -14,9 +14,10 @@ def reader_factory(fileType: InputFileType, config: dict) -> Reader:
     """
     # get configs
     system_messages = config.get('parsing', {}).get('messages', {})
+    chars_per_token = config.get('parsing', {}).get('chars-per-token', 4.0)
     logging_service = LoggingService(config)
 
     if fileType == InputFileType.INSTAGRAM_EXPORT:
-        return InstagramExportJsonReader(system_messages, logging_service)
+        return InstagramExportJsonReader(system_messages, logging_service, chars_per_token=chars_per_token)
     elif fileType == InputFileType.WHATSAPP_EXPORT:
-        return WhatsappTxtReader(logging_service)
+        return WhatsappTxtReader(logging_service, chars_per_token=chars_per_token)

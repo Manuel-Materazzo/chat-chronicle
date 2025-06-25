@@ -5,8 +5,8 @@ from abc import ABC
 
 class TxtReader(Reader, ABC):
 
-    def __init__(self, logging_service: LoggingService):
-        super().__init__(logging_service, ".txt")
+    def __init__(self, logging_service: LoggingService, chars_per_token: float = 4.0):
+        super().__init__(logging_service, ".txt", chars_per_token=chars_per_token)
 
     def read(self, path: str) -> list[str]:
         """

@@ -60,6 +60,8 @@ def get_configs(filename: str) -> dict:
             'level': LogLevel.INFO,
         }
         config['parsing'] = {
+            'chars-per-token': 4.0,
+            'token-per-chunk': 4000,
             'chat-sessions': {
                 'enabled': True,
                 'sleep-window-start-hour': 2,
@@ -101,7 +103,7 @@ Each message starts with the sender’s name, then a colon, then the text.
 Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
 """,
             'user-prompt': """Messages:
-{{$messages}}
+{messages}
 Diary entry:
 """,
         }
