@@ -4,5 +4,7 @@ flask-smorest
 marshmallow
 waitress
 pydantic
-semantic-kernel
 pyyaml
+langchain_openai
+langchain_core
+langgraph

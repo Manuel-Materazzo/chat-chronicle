@@ -3,7 +3,6 @@ inference-service:
   endpoint: http://127.0.0.1:1234/v1 # LLM provider endpoint (OpenAI compatible)
   concurrency-limit: 1 # How many requests can be executed parallely
   timeout: 600 # Seconds we are willing to wait for the endpoint to reply with AI response
-  connect-timeout: 10 # Seconds we are willing to wait fot the endpoint to accept the initial connection
 batch:
   input:
     type: INSTAGRAM_EXPORT # or WHATSAPP_EXPORT
@@ -37,17 +36,50 @@ parsing:
       photo-uploads: "[Sent a photo of himself]"
       audio-messages: "[Sent an audio message]"
 llm:
-  max-tokens: 2000
-  model-name: gemma-3-4b-it-qat
+  max-tokens: 2000 # maximum LLM output length
+  model-name: gemma-3-1b-it-qat # The LLM model to be used
   system-prompt: |-
-    You are a bot that writes simple diary entries.
-    Below are messages from one day of Instagram DMs.
-    Each message starts with the sender�s name, then a colon, then the text.
-    Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
-  temperature: 0.7
-  top-p: 0.8
+    RUOLO: Sei un assistente esperto nella scrittura di pagine di diario personali e riflessivi.
+    
+    CONTESTO: Analizzerai messaggi di chat di una giornata nel formato [ora] Nome: messaggio.
+    
+    COMPITO PRINCIPALE: Scrivi una pagina di diario dal punto di vista di Manuel Materazzo che riassuma la sua giornata basandoti ESCLUSIVAMENTE sui messaggi forniti.
+    
+    ISTRUZIONI STEP-BY-STEP:
+    1. Leggi attentamente tutti i messaggi
+    2. Identifica i temi principali e gli eventi significativi
+    3. Nota le emozioni espresse o implicite
+    4. Organizza cronologicamente gli eventi
+    5. Scrivi in prima persona con tono personale e riflessivo
+    
+    FORMATO RICHIESTO:
+    - Inizia con "Caro diario,"
+    - Lunghezza: 100-180 parole
+    - Tono: personale, riflessivo, autentico
+    - Struttura: cronologica con riflessioni personali
+    - Concludi con una considerazione sulla giornata
+    
+    REGOLE FERREE:
+    - NON inventare dettagli non presenti nei messaggi
+    - USA solo informazioni esplicite o chiaramente deducibili
+    - Mantieni il punto di vista di Manuel
+    - Se Manuel fa una domanda, descrivi che HAI FATTO la domanda
+    - Se qualcun altro fa una domanda, descrivi che HANNO FATTO la domanda a te
+    - Includi emozioni solo se evidenti dal contesto
+    - Ricorda che è una chat fra due fidanzati
+    
+    ESEMPI DI STILE:
+    Input: [14:30] Manuel: Ho finalmente finito il progetto! [15:45] An: Complimenti! Come ti senti?
+    [15:47] Manuel: Sollevato ma anche orgoglioso
+    
+    Output: Caro diario, oggi pomeriggio ho raggiunto un traguardo importante: ho finalmente completato il progetto su cui stavo lavorando. Quando An mi ha chiesto come mi sentissi, ho risposto che ero sollevato ma anche orgoglioso - e descrive perfettamente le mie emozioni. È stata una giornata di soddisfazioni personali che mi fa guardare al futuro con ottimismo.
+    
+    === FINE ISTRUZIONI - INIZIO MESSAGGI REALI ===
+  temperature: 0.4
+  top-p: 0.7
   user-prompt: |-
-    {{$chat_history}}
-    Messages:
-    {{$messages}}
-    Diary entry:
+    MESSAGGI DA ANALIZZARE:
+    {messages}
+
+    Ora, seguendo le istruzioni step-by-step, scrivi la pagina di diario:
+    === FINE MESSAGGI - INIZIO OUTPUT ===

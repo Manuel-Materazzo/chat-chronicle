@@ -1,95 +1,107 @@
 import asyncio
+from typing import Annotated, TypedDict
 
-import httpx
-from openai import AsyncOpenAI
-from semantic_kernel.connectors.ai import PromptExecutionSettings
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+from langgraph.constants import START, END
+from langgraph.graph import StateGraph
+from langgraph.graph.message import add_messages
+from langgraph.graph.state import CompiledStateGraph
 
-from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
-from semantic_kernel.contents.chat_history import ChatHistory
-from semantic_kernel.functions.kernel_arguments import KernelArguments
-from semantic_kernel.kernel import Kernel
-from semantic_kernel.services.ai_service_client_base import AIServiceClientBase
 
-service_id = "local-gpt"
+# Define the state schema for LangGraph
+class ChatState(TypedDict):
+    messages: Annotated[list, add_messages]
+    chat_log: str
+    summary: str
 
 
 class AiService:
-
     def __init__(self, config: dict):
-        self.kernel = Kernel()
-        # create empty chat history
-        self.empty_chat_history = ChatHistory(system_message=config.get('llm', {}).get('system-prompt', ''))
-
-        # create LLM API client and add it to kernel
-        chat_completion_client = self.__get_chat_service(config)
-        self.kernel.add_service(chat_completion_client)
-
-        # set llm params on kernel
-        settings = self.__get_setting(config)
-
-        # add chat function to kernel
-        self.chat_function = self.kernel.add_function(
-            plugin_name="ChatBot",
-            function_name="Chat",
-            prompt=config.get('llm', {}).get('user-prompt', ''),
-            template_format="semantic-kernel",
-            prompt_execution_settings=settings,
-        )
+        self.config = config
         self.concurrency_limit = config.get('inference-service', {}).get('concurrency-limit', 2)
         self.semaphore = asyncio.Semaphore(self.concurrency_limit)
 
+        # Initialize OpenAI client with custom configuration
+        self.openai_client = self._get_openai_client(config)
+
+        # Create LangGraph
+        self.graph = self._build_graph()
+
     def get_summary_sync(self, chat_log: str) -> str:
-        return asyncio.run(self.__get_ai_full_response(chat_log))
+        """Synchronous wrapper for getting AI summary"""
+        return asyncio.run(self.get_summary_async(chat_log))
 
     async def get_summary_async(self, chat_log: str) -> str:
+        """Asynchronous method to get AI summary with concurrency control"""
+
+        # Prepare initial state
+        initial_state = {
+            "messages": [],
+            "chat_log": chat_log,
+            "summary": ""
+        }
+
         async with self.semaphore:
-            return await self.__get_ai_full_response(chat_log)
+            # Invoke the graph
+            result = await self.graph.ainvoke(initial_state)
 
-    async def __get_ai_full_response(self, messages: str) -> str:
-        result = await self.kernel.invoke(
-            self.chat_function,
-            KernelArguments(messages=messages, chat_history=self.empty_chat_history)
-        )
-        if result is None:
-            return ""
-        return str(result)
+            # Return the summary from the result
+            return result.get("summary", "")
 
-    def __get_setting(self, config: dict) -> PromptExecutionSettings:
-        """
-        Returns the LLM settings object
-        :param config:
-        :return:
-        """
-        settings = self.kernel.get_prompt_execution_settings_from_service_id(service_id)
-        settings.max_tokens = config.get('llm', {}).get('max-tokens', 2000)
-        settings.temperature = config.get('llm', {}).get('temperature', 0.7)
-        settings.top_p = config.get('llm', {}).get('top-p', 0.8)
-        return settings
-
-    def __get_chat_service(self, config: dict) -> AIServiceClientBase:
-        """
-        Returns the chat completion client
-        :param config:
-        :return:
-        """
+    def _get_openai_client(self, config: dict) -> ChatOpenAI:
+        """Configure and return OpenAI client"""
         # Get timeouts from config
         timeout = config.get('inference-service', {}).get('timeout', 600)
-        connect_timeout = config.get('inference-service', {}).get('connect-timeout', 600)
-        read_timeout = timeout - connect_timeout * 2
 
-        # Instantiate clients
-        openAIClient: AsyncOpenAI = AsyncOpenAI(
+        return ChatOpenAI(
+            model=config.get('llm', {}).get('model-name', 'gpt-3.5-turbo'),
+            temperature=config.get('llm', {}).get('temperature', 0.7),
+            max_tokens=config.get('llm', {}).get('max-tokens', 2000),
+            top_p=config.get('llm', {}).get('top-p', 0.8),
             api_key=config.get('inference-service', {}).get('api-key', ''),
             base_url=config.get('inference-service', {}).get('endpoint', ''),
-            timeout=httpx.Timeout(
-                timeout=timeout,
-                connect=connect_timeout,
-                read=read_timeout,
-                write=connect_timeout
-            )
+            timeout=timeout,
+            max_retries=2
         )
-        return OpenAIChatCompletion(
-            service_id=service_id,
-            ai_model_id=config.get('llm', {}).get('model-name', ''),
-            async_client=openAIClient
-        )
+
+    def _build_graph(self) -> CompiledStateGraph:
+        """Build and compile the LangGraph"""
+        # Create the state graph
+        graph_builder = StateGraph(ChatState)
+
+        # Add the summarization node
+        graph_builder.add_node("summarize", self._summarize_node)
+
+        # draw graph
+        graph_builder.add_edge(START, "summarize")
+        graph_builder.add_edge("summarize", END)
+
+
+        # Compile the graph
+        return graph_builder.compile()
+
+    async def _summarize_node(self, state: ChatState) -> ChatState:
+        """Node function that processes chat logs and generates summaries"""
+        chat_log = state["chat_log"]
+
+        # Create messages for the LLM
+        system_prompt = self.config.get('llm', {}).get('system-prompt', '')
+        user_prompt = self.config.get('llm', {}).get('user-prompt', '')
+
+        messages = []
+        if system_prompt:
+            messages.append(SystemMessage(content=system_prompt))
+
+        # Format the user prompt with the chat log
+        formatted_prompt = user_prompt.format(messages=chat_log) if user_prompt else chat_log
+        messages.append(HumanMessage(content=formatted_prompt))
+
+        # Get response from LLM
+        response = await self.openai_client.ainvoke(messages)
+        summary = response.content if response.content else ""
+
+        return {
+            "messages": messages + [response],
+            "summary": summary
+        }
