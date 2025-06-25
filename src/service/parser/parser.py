@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from datetime import timedelta, time, datetime
 
+from src.dto.chunk import Chunk
 from src.dto.message import Message
 
 
@@ -13,13 +14,15 @@ class Parser(ABC):
     @abstractmethod
     def __init__(self, chat_sessions_enabled: bool = False, sleep_window_start: int = 2, sleep_window_end: int = 9,
                  ignore_chat_enabled: bool = False, ignore_chat_before: str = "2150-01-01",
-                 ignore_chat_after: str = "1990-01-01") -> None:
+                 ignore_chat_after: str = "1990-01-01", token_per_chunk: int = 4000) -> None:
         self.message_bucket = defaultdict(list[Message])
         self.gap_threshold = timedelta(hours=3)
 
         self.chat_sessions_enabled = chat_sessions_enabled
         self.sleep_window_start = time(sleep_window_start, 0)
         self.sleep_window_end = time(sleep_window_end, 0)
+
+        self.token_per_chunk = token_per_chunk
 
         self.ignore_chat_enabled = ignore_chat_enabled
         if ignore_chat_enabled and len(ignore_chat_before) > 0 and len(ignore_chat_after) > 0:
@@ -122,7 +125,7 @@ class Parser(ABC):
 
     def get_daily_chat_log(self, date: str) -> str:
         """
-        Returns a list of days with messages available.
+        Returns a chat log for the provided date, each message is formatted as follows: [HH:mm] name: message.
         :return:
         """
         messages = self.get_messages(date)
@@ -131,4 +134,43 @@ class Parser(ABC):
             timestamp = message.get("timestamp")
             time_string = f"{timestamp.hour:02}:{timestamp.minute:02}"
             diary = diary + f"[{time_string}] {message.get('sender_name')}: {message.get('content')}\n"
+        return diary
+
+    def get_daily_chat_log_chunked(self, date: str) -> list[Chunk]:
+        """
+        Returns a chat log for the provided date, divided into slightly overlapping chunks.
+        Each message is formatted as follows: [HH:mm] name: message.
+        :return:
+        """
+        messages = self.get_messages(date)
+        diary: list[Chunk] = []
+        chunk = Chunk(content="", messages_count=0, start_timestamp=None, end_timestamp=None, token_count=0)
+        content = []
+
+        for message in messages:
+            # prepare message
+            timestamp = message.get("timestamp")
+            time_string = f"{timestamp.hour:02}:{timestamp.minute:02}"
+            formatted_message = f"[{time_string}] {message.get('sender_name')}: {message.get('content')}\n"
+            content.append(formatted_message)
+
+            # counts
+            tokens = message.get("token_count")
+            chunk["token_count"] += tokens
+            chunk["messages_count"] += 1
+
+            # start time for the chunk
+            if chunk["start_timestamp"] is None:
+                chunk["start_timestamp"] = timestamp
+
+            # when reaching the soft token limit (with a min of 3 messages, to allow extra-long ones)
+            if chunk["messages_count"] > 6 and chunk["token_count"] > self.token_per_chunk:
+                # append the chunk and start a new one
+                chunk["content"] = "".join(content)
+                chunk["end_timestamp"] = timestamp
+                diary.append(chunk)
+
+                chunk = Chunk(content="", messages_count=0, start_timestamp=None, end_timestamp=None, token_count=0)
+                content = content[-3:]  # overlapping chunks content, more context for the AI
+
         return diary
