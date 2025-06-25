@@ -50,7 +50,7 @@ def execute_summary_request(input_type: InputFileType, current_config: dict, raw
     diary_entries = []
 
     for day in day_list:
-        chat_log = parser.get_chat_log(day)
+        chat_log = parser.get_daily_chat_log(day)
         summary = ai_service.get_summary_sync(chat_log)
         entry = {
             "date": day,

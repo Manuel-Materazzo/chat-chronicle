@@ -27,7 +27,7 @@ async def process_single_day(day: str, parser, ai_service, writer, logger):
     try:
         # get chat log
         logger.debug(f'Getting chat log for {day}...')
-        chat_log = parser.get_chat_log(day)
+        chat_log = parser.get_daily_chat_log(day)
 
         # compute summary (con controllo concorrenza automatico)
         logger.debug(f'Generating summary for {day}...')

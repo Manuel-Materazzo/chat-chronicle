@@ -120,7 +120,7 @@ class Parser(ABC):
         """
         return list(self.message_bucket.keys())
 
-    def get_chat_log(self, date: str) -> str:
+    def get_daily_chat_log(self, date: str) -> str:
         """
         Returns a list of days with messages available.
         :return:
