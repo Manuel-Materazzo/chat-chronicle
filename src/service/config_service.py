@@ -44,68 +44,70 @@ def get_configs(filename: str) -> dict:
 
     # output default config file if not found
     if not os.path.isfile(filename):
-        config['batch'] = {
-            'input': {
-                'type': InputFileType.INSTAGRAM_EXPORT,
-                'path': './input/',
-            },
-            'output': {
-                'type': WriterType.TXT,
-                'path': './output/',
-                'merge-to-one-file': True,
-                'export-chat-log': False,
-            }
-        }
-        config['logs'] = {
-            'level': LogLevel.INFO,
-        }
-        config['parsing'] = {
-            'chars-per-token': 4.0,
-            'token-per-chunk': 4000,
-            'chat-sessions': {
-                'enabled': True,
-                'sleep-window-start-hour': 2,
-                'sleep-window-end-hour': 9,
-            },
-            'ignore-chat': {
-                'enabled': False,
-                'ignore-before': '1990-01-01',
-                'ignore-after': '2150-01-01'
-            },
-            'messages': {
-                'user-interactions': {
-                    'message-like': 'Ha messo "Mi piace" a un messaggio',
-                    'message-reaction': 'Ha aggiunto la reazione'
+        config = {
+            'batch': {
+                'input': {
+                    'type': InputFileType.INSTAGRAM_EXPORT,
+                    'path': './input/',
                 },
-                'user-content': {
-                    'posts-and-reels': '[Shared an internet video]',
-                    'video-uploads': '[Sent a video of himself]',
-                    'photo-uploads': '[Sent a photo of himself]',
-                    'audio-messages': '[Sent an audio message]'
+                'output': {
+                    'type': WriterType.TXT,
+                    'path': './output/',
+                    'merge-to-one-file': True,
+                    'export-chat-log': False,
                 }
-            }
-        }
-        config['inference-service'] = {
-            'endpoint': 'http://127.0.0.1:1234/v1',
-            'api-key': 'xxx',
-            'concurrency-limit': 2,
-            'timeout': 600,
-            'connect-timeout': 10
-        }
-        config['llm'] = {
-            'model-name': 'gemma-3-4b-it-qat',
-            'max-tokens': 2000,
-            'temperature': 0.7,
-            'top-p': 0.8,
-            'system-prompt': """You are a bot that writes simple diary entries.
+            },
+            'logs': {
+                'level': LogLevel.INFO,
+            },
+            'parsing': {
+                'chars-per-token': 4.0,
+                'token-per-chunk': 4000,
+                'chat-sessions': {
+                    'enabled': True,
+                    'sleep-window-start-hour': 2,
+                    'sleep-window-end-hour': 9,
+                },
+                'ignore-chat': {
+                    'enabled': False,
+                    'ignore-before': '1990-01-01',
+                    'ignore-after': '2150-01-01'
+                },
+                'messages': {
+                    'user-interactions': {
+                        'message-like': 'Ha messo "Mi piace" a un messaggio',
+                        'message-reaction': 'Ha aggiunto la reazione'
+                    },
+                    'user-content': {
+                        'posts-and-reels': '[Shared an internet video]',
+                        'video-uploads': '[Sent a video of himself]',
+                        'photo-uploads': '[Sent a photo of himself]',
+                        'audio-messages': '[Sent an audio message]'
+                    }
+                }
+            },
+            'inference-service': {
+                'endpoint': 'http://127.0.0.1:1234/v1',
+                'api-key': 'xxx',
+                'concurrency-limit': 2,
+                'timeout': 600,
+                'connect-timeout': 10
+            },
+            'llm': {
+                'model-name': 'gemma-3-4b-it-qat',
+                'max-tokens': 2000,
+                'temperature': 0.7,
+                'top-p': 0.8,
+                'system-prompt': """You are a bot that writes simple diary entries.
 Below are messages from one day of Instagram DMs.
 Each message starts with the sender’s name, then a colon, then the text.
 Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
 """,
-            'user-prompt': """Messages:
+                'user-prompt': """Messages:
 {messages}
 Diary entry:
 """,
+            }
         }
         with open(filename, 'w') as configfile:
             SafeDumper.add_representer(str, str_presenter)
