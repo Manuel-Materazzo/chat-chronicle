@@ -1,11 +1,13 @@
 import os
 from enum import StrEnum
+import textwrap
 
 from yaml.representer import SafeRepresenter
 from yaml import SafeLoader, SafeDumper, dump, load
 
 from src.dto.enums.input_file_type import InputFileType
 from src.dto.enums.log_levels import LogLevel
+from src.dto.enums.summarization_strategy import SummarizationStrategy
 from src.dto.enums.writer_type import WriterType
 
 config = dict()
@@ -25,7 +27,7 @@ def str_presenter(dumper, data):
     :return:
     """
     if '\n' in data:
-        clean_data = "\n".join(line.rstrip() for line in data.splitlines())
+        clean_data = "\n".join(line.lstrip().rstrip() for line in data.splitlines())
         return dumper.represent_scalar('tag:yaml.org,2002:str', clean_data, style='|')
     return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
@@ -93,20 +95,71 @@ def get_configs(filename: str) -> dict:
                 'timeout': 600,
                 'connect-timeout': 10
             },
-            'llm': {
-                'model-name': 'gemma-3-4b-it-qat',
-                'max-tokens': 2000,
-                'temperature': 0.7,
-                'top-p': 0.8,
-                'system-prompt': """You are a bot that writes simple diary entries.
-Below are messages from one day of Instagram DMs.
-Each message starts with the sender’s name, then a colon, then the text.
-Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
-""",
-                'user-prompt': """Messages:
-{messages}
-Diary entry:
-""",
+            'summarization': {
+                'strategy': SummarizationStrategy.MAP_REDUCE,
+                'linear-strategy': {
+                    'max-tokens': 2000,
+                    'model-name': 'gemma-3-4b-it-qat',
+                    'temperature': 0.4,
+                    'top-p': 0.7,
+                    'system-prompt': """You are a bot that writes simple diary entries.
+                        Below are messages from one day of Instagram DMs.
+                        Each message starts with the sender’s name, then a colon, then the text.
+                        Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
+                    """,
+                    'user-prompt': """Messages:
+                        {messages}
+                        Diary entry:
+                    """,
+                },
+                'map-reduce-strategy': {
+                    'map-agent': {
+                        'max-tokens': 2000,
+                        'model-name': 'gemma-3-4b-it-qat',
+                        'temperature': 0.2,
+                        'top-p': 0.7,
+                        'system-prompt': """You are an assistant who analyzes blocks of chat messages to extract key information.
+                                Analyze this block of messages and create a structured summary of activities, conversations, and events.
+                                Each message starts with the sender name, then a colon, then the text.
+                                SPECIFIC INSTRUCTIONS:
+                                1. Identify the main events
+                                2. Note the emotions expressed
+                                3. Record important conversation topics
+                                4. Maintain the chronological order of events
+                                5. Include only facts present in the messages
+                        """,
+                        'user-prompt': """Messages:
+                                {messages}
+                                
+                                Now, following the instructions step-by-step, write the summary.
+                         """,
+                    },
+                    'reduce-agent': {
+                        'max-tokens': 2000,
+                        'model-name': 'gemma-3-4b-it-qat',
+                        'temperature': 0.4,
+                        'top-p': 0.7,
+                        'system-prompt': """You are an assistant who writes personal journal entries by combining message block summaries.
+                                You will receive several structured message block summaries from the same day.
+                                Each message starts with the sender name, then a colon, then the text.
+                                Your job is to write a short diary by combining all summaries into a single coherent journal entry.
+                                CRITICAL INSTRUCTIONS:
+                                1. Write in first person
+                                2. Organize all events chronologically
+                                3. Create a smooth narrative flow between different blocks
+                                4. Maintain the personal and reflective tone of a journal
+                                5. Eliminate duplication between blocks
+                                6. Length: 150-250 words
+                                7. Begin with "Dear Diary," and end with a reflection on the day.
+                        """,
+                        'user-prompt': """Messages:
+                                {messages}
+                                
+                                Now, following the instructions step-by-step, write the diary page.
+                        """,
+                    },
+                }
+
             }
         }
         with open(filename, 'w') as configfile:

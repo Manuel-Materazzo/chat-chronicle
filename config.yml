@@ -5,10 +5,10 @@ inference-service:
   timeout: 600 # Seconds we are willing to wait for the endpoint to reply with AI response
 batch:
   input:
-    type: INSTAGRAM_EXPORT # or WHATSAPP_EXPORT
+    type: INSTAGRAM_EXPORT # INSTAGRAM_EXPORT or WHATSAPP_EXPORT
     path: ./input/ # Path to the directory containing the exported chat files
   output:
-    type: TXT # or JSON, NDJSON
+    type: TXT # TXT, JSON, NDJSON
     path: ./output/ # Path to the directory where the output will be written
     merge-to-one-file: true # Generate only one outout file, instead of a file for every day
     export-chat-log: false # Add the raw chat log to the output file
@@ -45,51 +45,74 @@ parsing:
       video-uploads: "[Sent a video of himself]"
       photo-uploads: "[Sent a photo of himself]"
       audio-messages: "[Sent an audio message]"
-llm:
-  max-tokens: 2000 # maximum LLM output length
-  model-name: gemma-3-1b-it-qat # The LLM model to be used
-  system-prompt: |-
-    RUOLO: Sei un assistente esperto nella scrittura di pagine di diario personali e riflessivi.
-    
-    CONTESTO: Analizzerai messaggi di chat di una giornata nel formato [ora] Nome: messaggio.
-    
-    COMPITO PRINCIPALE: Scrivi una pagina di diario dal punto di vista di Manuel Materazzo che riassuma la sua giornata basandoti ESCLUSIVAMENTE sui messaggi forniti.
-    
-    ISTRUZIONI STEP-BY-STEP:
-    1. Leggi attentamente tutti i messaggi
-    2. Identifica i temi principali e gli eventi significativi
-    3. Nota le emozioni espresse o implicite
-    4. Organizza cronologicamente gli eventi
-    5. Scrivi in prima persona con tono personale e riflessivo
-    
-    FORMATO RICHIESTO:
-    - Inizia con "Caro diario,"
-    - Lunghezza: 100-180 parole
-    - Tono: personale, riflessivo, autentico
-    - Struttura: cronologica con riflessioni personali
-    - Concludi con una considerazione sulla giornata
-    
-    REGOLE FERREE:
-    - NON inventare dettagli non presenti nei messaggi
-    - USA solo informazioni esplicite o chiaramente deducibili
-    - Mantieni il punto di vista di Manuel
-    - Se Manuel fa una domanda, descrivi che HAI FATTO la domanda
-    - Se qualcun altro fa una domanda, descrivi che HANNO FATTO la domanda a te
-    - Includi emozioni solo se evidenti dal contesto
-    - Ricorda che è una chat fra due fidanzati
-    
-    ESEMPI DI STILE:
-    Input: [14:30] Manuel: Ho finalmente finito il progetto! [15:45] An: Complimenti! Come ti senti?
-    [15:47] Manuel: Sollevato ma anche orgoglioso
-    
-    Output: Caro diario, oggi pomeriggio ho raggiunto un traguardo importante: ho finalmente completato il progetto su cui stavo lavorando. Quando An mi ha chiesto come mi sentissi, ho risposto che ero sollevato ma anche orgoglioso - e descrive perfettamente le mie emozioni. È stata una giornata di soddisfazioni personali che mi fa guardare al futuro con ottimismo.
-    
-    === FINE ISTRUZIONI - INIZIO MESSAGGI REALI ===
-  temperature: 0.4
-  top-p: 0.7
-  user-prompt: |-
-    MESSAGGI DA ANALIZZARE:
-    {messages}
+summarization:
+  strategy: MAP_REDUCE # LINEAR or MAP_REDUCE
+  # linear-strategy: Fit a day's worth of messages into LLM context, and pray the attention god.
+  # only really useful if the conversations are short, or if you have access to a high-end model without token concerns.
+  linear-strategy:
+    max-tokens: 2000 # maximum LLM output length
+    model-name: gemma-3-4b-it-qat # The LLM model to be used
+    temperature: 0.4
+    top-p: 0.7
+    system-prompt: |- # Explains to the LLM what it's supposed to do
+      You are a bot that writes simple diary entries.
+      Below are messages from one day of Instagram DMs.
+      Each message starts with the sender name, then a colon, then the text.
+      Your job is to write a short diary entry that summarizes what the user did or talked about that day, based only on the provided messages.
+    user-prompt: |-
+      MESSAGES:
+      {messages}
+      
+      Now, following the instructions step-by-step, write the diary page.
+  # map-reduce-strategy: Break a day worth of messages into smaller chunks (approximately token-per-chunk tokens long).
+  # Each chunk is processed by the map-agent, in order to produce a mini-summary that extract key info.
+  # Every mini-summary is then shoved into the reduce-agent, that produces the actual journal entry.
+  #
+  # Reduces significantly the used context, in exchange for more LLM calls.
+  # Having a simpler job, agents should perform better, and the final journal entry should retain more details, given
+  # a nice enough prompt.
+  # You can also cut costs by using smaller models as agents.
+  map-reduce-strategy:
+    map-agent:
+      max-tokens: 2000 # maximum LLM output length
+      model-name: gemma-3-4b-it-qat # The LLM model to be used
+      temperature: 0.2
+      top-p: 0.7
+      system-prompt: |- # Explains to the LLM what it's supposed to do
+        You are an assistant who analyzes blocks of chat messages to extract key information.
+        Analyze this block of messages and create a structured summary of activities, conversations, and events.
+        Each message starts with the sender name, then a colon, then the text.
+        SPECIFIC INSTRUCTIONS:
+        1. Identify the main events
+        2. Note the emotions expressed
+        3. Record important conversation topics
+        4. Maintain the chronological order of events
+        5. Include only facts present in the messages
+      user-prompt: |-
+        MESSAGES:
+        {messages}
+  
+        Now, following the instructions step-by-step, write the summary.
+    reduce-agent:
+      max-tokens: 2000 # maximum LLM output length
+      model-name: gemma-3-4b-it-qat # The LLM model to be used
+      temperature: 0.4
+      top-p: 0.7
+      system-prompt: |- # Explains to the LLM what it's supposed to do
+        You are an assistant who writes personal journal entries by combining message block summaries.
+        You will receive several structured message block summaries from the same day.
+        Each message starts with the sender name, then a colon, then the text.
+        Your job is to write a short diary by combining all summaries into a single coherent journal entry.
+        CRITICAL INSTRUCTIONS:
+        1. Write in first person
+        2. Organize all events chronologically
+        3. Create a smooth narrative flow between different blocks
+        4. Maintain the personal and reflective tone of a journal
+        5. Eliminate duplication between blocks
+        6. Length: 150-250 words
+        7. Begin with "Dear Diary," and end with a reflection on the day.
+      user-prompt: |-
+        MESSAGES:
+        {messages}
 
-    Ora, seguendo le istruzioni step-by-step, scrivi la pagina di diario:
-    === FINE MESSAGGI - INIZIO OUTPUT ===
+        Now, following the instructions step-by-step, write the diary page.
