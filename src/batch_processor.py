@@ -2,10 +2,13 @@ import asyncio
 import os
 
 from src.dto.enums.input_file_type import InputFileType
-from src.service.ai_service import AiService
+from src.service.ai_processor.ai_processor import AiProcessor
+from src.service.ai_processor.ai_processor_factory import ai_processor_factory
 from src.service.logging_service import LoggingService
+from src.service.parser.parser import Parser
 from src.service.parser.parser_factory import parser_factory
 from src.service.reader.reader_factory import reader_factory
+from src.service.writer.writer import Writer
 from src.service.writer.writer_factory import writer_factory
 
 done_count = 1
@@ -54,23 +57,23 @@ def process_all(config: dict):
     # instantiate writer
     writer = writer_factory(config)
 
-    # create AI service
-    ai_service = AiService(config)
+    # create AI processor
+    ai_processor = ai_processor_factory(config)
 
     # get summary and write each day diary
-    asyncio.run(_batch_process_days(day_list, parser, ai_service, writer, logger))
+    asyncio.run(_batch_process_days(day_list, parser, ai_processor, writer, logger))
 
     writer.close()
 
 
-async def _batch_process_days(day_list: list[str], parser, ai_service, writer, logger):
+async def _batch_process_days(day_list: list[str], parser: Parser, ai_processor: AiProcessor, writer: Writer, logger):
     """
     Processes the diary entry of  multiple days with concurrent processing.
     """
     global total
     total = len(day_list)
     # Create a task for every day
-    tasks = [_process_single_day(day, parser, ai_service, writer, logger) for day in day_list]
+    tasks = [_process_single_day(day, parser, ai_processor, writer, logger) for day in day_list]
 
     # Execute tasks with parallel processing
     completed_days = await asyncio.gather(*tasks, return_exceptions=True)
@@ -83,12 +86,12 @@ async def _batch_process_days(day_list: list[str], parser, ai_service, writer, l
     return completed_days
 
 
-async def _process_single_day(day: str, parser, ai_service, writer, logger):
+async def _process_single_day(day: str, parser: Parser, ai_processor: AiProcessor, writer: Writer, logger):
     """
     Processes the diary entry of a single day.
     :param day:
     :param parser:
-    :param ai_service:
+    :param ai_processor:
     :param writer:
     :param logger:
     :return:
@@ -102,7 +105,7 @@ async def _process_single_day(day: str, parser, ai_service, writer, logger):
 
         # compute summary (con controllo concorrenza automatico)
         logger.debug(f'Generating summary for {day}...')
-        summary = await ai_service.get_summary_async(chat_log)
+        summary = await ai_processor.get_summary_async(chat_log)
 
         # write to file
         logger.debug(f'Writing file for {day}...')

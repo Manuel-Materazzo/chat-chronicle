@@ -7,7 +7,8 @@ from src.dto.enums.input_file_type import InputFileType
 from src.dto.schemas.instagram_export_request_schema import InstagramExportRequestSchema
 from src.dto.schemas.summary_response_schema import SummaryResponseSchema
 from src.dto.schemas.whatsapp_export_request_schema import WhatsappExportRequestSchema
-from src.service.ai_service import AiService
+from src.service.ai_processor.ai_processor import AiProcessor
+from src.service.ai_processor.ai_processor_factory import ai_processor_factory
 from src.service.logging_service import LoggingService
 from src.service.parser.parser_factory import parser_factory
 from src.service.reader.reader_factory import reader_factory
@@ -17,18 +18,18 @@ blp = Blueprint("summarize", "usesummarizers", url_prefix="/summarize",
 
 app_config: dict = {}
 logging_service: LoggingService = None
-ai_service: AiService = None
+ai_processor: AiProcessor = None
 ai_semaphore: Semaphore = None
 
 
 def set_config(config: dict):
     global app_config
     global logging_service
-    global ai_service
+    global ai_processor
     global ai_semaphore
     logging_service = LoggingService(config)
     app_config = config
-    ai_service = AiService(config)
+    ai_processor = ai_processor_factory(config)
     concurrency_limit = config.get('inference-service', {}).get('concurrency-limit', 2)
     ai_semaphore = Semaphore(concurrency_limit)
 
@@ -51,7 +52,7 @@ def execute_summary_request(input_type: InputFileType, current_config: dict, raw
 
     for day in day_list:
         chat_log = parser.get_daily_chat_log(day)
-        summary = ai_service.get_summary_sync(chat_log)
+        summary = ai_processor.get_summary_sync(chat_log)
         entry = {
             "date": day,
             "summary": str(summary),
