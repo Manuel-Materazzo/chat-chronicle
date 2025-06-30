@@ -19,7 +19,7 @@ def get_chat_log(messages: list[Message]) -> str:
     return diary
 
 
-def get_daily_chat_log_chunked(messages: list[Message], token_per_chunk: int) -> list[Chunk]:
+def get_chat_log_chunked(messages: list[Message], token_per_chunk: int) -> list[Chunk]:
     """
     Returns a chat log for the provided messages list, divided into slightly overlapping chunks.
     Each message is formatted as follows: [HH:mm] name: message.
