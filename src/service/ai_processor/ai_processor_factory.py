@@ -25,12 +25,13 @@ def ai_processor_factory(config: dict) -> AiProcessor:
 
 
 def _get_linear_processor(config: dict, api_key, base_url, timeout, concurrency_limit) -> LinearAiProcessor:
-    max_tokens = config.get('summarization', {}).get('linear-strategy', {}).get('max-tokens', 2000)
-    model_name = config.get('summarization', {}).get('linear-strategy', {}).get('model-name', 'gemma-3-4b-it-qat')
-    temperature = config.get('summarization', {}).get('linear-strategy', {}).get('temperature', 0.4)
-    top_p = config.get('summarization', {}).get('linear-strategy', {}).get('top-p', 0.7)
-    system_prompt = config.get('summarization', {}).get('linear-strategy', {}).get('system-prompt', '')
-    user_prompt = config.get('summarization', {}).get('linear-strategy', {}).get('user-prompt', '')
+    linear_configs = config.get('summarization', {}).get('linear-strategy', {})
+    max_tokens = linear_configs.get('max-tokens', 2000)
+    model_name = linear_configs.get('model-name', 'gemma-3-4b-it-qat')
+    temperature = linear_configs.get('temperature', 0.4)
+    top_p = linear_configs.get('top-p', 0.7)
+    system_prompt = linear_configs.get('system-prompt', '')
+    user_prompt = linear_configs.get('user-prompt', '')
     return LinearAiProcessor(system_prompt, user_prompt, model_name, temperature, max_tokens, top_p, api_key,
                              base_url, timeout, concurrency_limit)
 

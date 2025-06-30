@@ -24,7 +24,6 @@ parsing:
   # You can get an estimate by slamming a wikipedia article on https://platform.openai.com/tokenizer
   # (or a tokenizer specific for your model) and dividing the character count by the token count.
   chars-per-token: 4.0 # Read above
-  token-per-chunk: 4000 # How many tokens worth of messages should the agent chunk together to generate a mini-summary
   chat-sessions:
     enabled: true # End the day at users sleep time instead of midnight
     sleep-window-end-hour: 9 # End of "sleep detection" window. Usually the Earliest hour of the "Goodmorning" text
@@ -73,6 +72,7 @@ summarization:
   # a nice enough prompt.
   # You can also cut costs by using smaller models as agents.
   map-reduce-strategy:
+    token-per-chunk: 4000 # How many tokens worth of messages should the agent chunk together to generate a mini-summary
     map-agent:
       max-tokens: 2000 # maximum LLM output length
       model-name: gemma-3-4b-it-qat # The LLM model to be used

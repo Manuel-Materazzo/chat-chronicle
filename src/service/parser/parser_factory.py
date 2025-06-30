@@ -18,14 +18,13 @@ def parser_factory(fileType: InputFileType, config: dict) -> Parser:
     ignore_chat_enabled = config.get('parsing', {}).get('ignore-chat', {}).get('enabled', False)
     ignore_chat_before = config.get('parsing', {}).get('ignore-chat', {}).get('ignore-before', "1990-01-01")
     ignore_chat_after = config.get('parsing', {}).get('ignore-chat', {}).get('ignore-after', "2150-01-01")
-    token_per_chunk = config.get('parsing', {}).get('token-per-chunk', 4000)
 
     if fileType == InputFileType.INSTAGRAM_EXPORT:
         return InstagramExport(chat_sessions_enabled, sleep_window_start, sleep_window_end, ignore_chat_enabled,
-                               ignore_chat_before, ignore_chat_after, token_per_chunk)
+                               ignore_chat_before, ignore_chat_after)
     elif fileType == InputFileType.WHATSAPP_EXPORT:
         return WhatsappExport(chat_sessions_enabled, sleep_window_start, sleep_window_end, ignore_chat_enabled,
-                              ignore_chat_before, ignore_chat_after, token_per_chunk)
+                              ignore_chat_before, ignore_chat_after)
 
     message = f"Input file type not supported, please choose one of the following: {[e for e in InputFileType]}"
     raise ValueError(message)
