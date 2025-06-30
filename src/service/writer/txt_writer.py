@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from src.dto.message import Message
+from src.service.parser.parser import get_chat_log
 from src.service.writer.writer import Writer
 
 
@@ -9,7 +11,7 @@ class TxtWriter(Writer):
         super().__init__(folder, single_file, export_chat)
         self.single_file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M')}_full-chronicle.txt"
 
-    def write(self, date: str, chat: str, summary: str) -> None:
+    def write(self, date: str, messages: list[Message], summary: str) -> None:
 
         # Compose file path, whether there is an append or a create operation
         if self.single_file:
@@ -22,6 +24,7 @@ class TxtWriter(Writer):
             f.write(f"[{date}]\n\n")
             f.write(f"Diary Entry: \n{summary}\n\n\n")
             if self.export_chat:
+                chat = get_chat_log(messages)
                 f.write(f"Chat History: \n{chat}\n\n\n")
 
     def close(self) -> None:

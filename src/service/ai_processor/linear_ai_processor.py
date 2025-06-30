@@ -7,13 +7,15 @@ from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.graph.state import CompiledStateGraph
 
+from src.dto.message import Message
 from src.service.ai_processor.ai_processor import AiProcessor
+from src.service.parser.parser import get_chat_log
 
 
 # Define the state schema for LangGraph
 class ChatState(TypedDict):
-    messages: Annotated[list, add_messages]
-    chat_log: str
+    ai_chat: Annotated[list, add_messages]
+    messages: list[Message]
     summary: str
 
 
@@ -38,8 +40,8 @@ class LinearAiProcessor(AiProcessor):
 
         # Prepare initial state
         initial_state = {
+            "ai_chat": [],
             "messages": [],
-            "chat_log": "",
             "summary": ""
         }
 
@@ -62,21 +64,23 @@ class LinearAiProcessor(AiProcessor):
 
     async def _summarize_node(self, state: ChatState) -> ChatState:
         """Node function that processes chat logs and generates summaries"""
-        chat_log = state["chat_log"]
+        # get chat log
+        messages = state["messages"]
+        chat_log = get_chat_log(messages)
 
-        messages = []
+        ai_chat_messages = []
         if self.system_prompt:
-            messages.append(SystemMessage(content=self.system_prompt))
+            ai_chat_messages.append(SystemMessage(content=self.system_prompt))
 
         # Format the user prompt with the chat log
         formatted_prompt = self.user_prompt.format(messages=chat_log) if self.user_prompt else chat_log
-        messages.append(HumanMessage(content=formatted_prompt))
+        ai_chat_messages.append(HumanMessage(content=formatted_prompt))
 
         # Get response from LLM
-        response = await self.openai_client.ainvoke(messages)
+        response = await self.openai_client.ainvoke(ai_chat_messages)
         summary = response.content if response.content else ""
 
         return {
-            "messages": messages + [response],
+            "ai_chat": ai_chat_messages + [response],
             "summary": summary
         }

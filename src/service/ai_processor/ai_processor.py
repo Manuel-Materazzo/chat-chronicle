@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 
 from langchain_core.globals import set_verbose
 
+from src.dto.message import Message
+
 
 class AiProcessor(ABC):
 
@@ -20,15 +22,15 @@ class AiProcessor(ABC):
         """Build and compile the LangGraph"""
         pass
 
-    def get_summary_sync(self, chat_log: str) -> str:
+    def get_summary_sync(self, messages: list[Message]) -> str:
         """Synchronous wrapper for getting AI summary"""
-        return asyncio.run(self.get_summary_async(chat_log))
+        return asyncio.run(self.get_summary_async(messages))
 
-    async def get_summary_async(self, chat_log: str) -> str:
+    async def get_summary_async(self, messages: list[Message]) -> str:
         """Asynchronous method to get AI summary with concurrency control"""
 
         state = self.initial_state.copy()
-        state["chat_log"] = chat_log
+        state["messages"] = messages
 
         async with self.semaphore:
             # Invoke the graph

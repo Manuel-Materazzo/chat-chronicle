@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 
+from src.dto.message import Message
+from src.service.parser.parser import get_chat_log
 from src.service.writer.writer import Writer
 
 
@@ -17,12 +19,13 @@ class JsonWriter(Writer):
             with open(file_path, "a", encoding="utf-8") as f:
                 f.write("[\n")
 
-    def write(self, date: str, chat: str, summary: str) -> None:
+    def write(self, date: str, messages: list[Message], summary: str) -> None:
         entry = {
             "date": date,
             "summary": str(summary),
         }
         if self.export_chat:
+            chat = get_chat_log(messages)
             entry["chat"] = chat
 
         if self.single_file:

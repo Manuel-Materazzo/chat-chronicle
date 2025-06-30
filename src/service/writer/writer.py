@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from src.dto.message import Message
+
 
 class Writer(ABC):
     """
@@ -13,7 +15,7 @@ class Writer(ABC):
         self.export_chat = export_chat
 
     @abstractmethod
-    def write(self, date: str, chat: str, summary: str) -> None:
+    def write(self, date: str, messages: list[Message], summary: str) -> None:
         pass
 
     @abstractmethod

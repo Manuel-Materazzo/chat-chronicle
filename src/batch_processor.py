@@ -83,6 +83,8 @@ async def _batch_process_days(day_list: list[str], parser: Parser, ai_processor:
         if isinstance(result, Exception):
             logger.error(f'Failed to process {day_list[i]}: {result}')
 
+    writer.close()
+
     return completed_days
 
 
@@ -101,15 +103,15 @@ async def _process_single_day(day: str, parser: Parser, ai_processor: AiProcesso
     try:
         # get chat log
         logger.debug(f'Getting chat log for {day}...')
-        chat_log = parser.get_daily_chat_log(day)
+        messages = parser.get_messages(day)
 
         # compute summary (con controllo concorrenza automatico)
         logger.debug(f'Generating summary for {day}...')
-        summary = await ai_processor.get_summary_async(chat_log)
+        summary = await ai_processor.get_summary_async(messages)
 
         # write to file
         logger.debug(f'Writing file for {day}...')
-        writer.write(day, chat_log, summary)
+        writer.write(day, messages, summary)
 
         logger.debug(f'Completed processing for {day}')
         logger.info(f'{done_count}/{total} done!')
