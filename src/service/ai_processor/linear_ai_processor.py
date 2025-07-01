@@ -9,6 +9,7 @@ from langgraph.graph.state import CompiledStateGraph
 
 from src.dto.message import Message
 from src.service.ai_processor.ai_processor import AiProcessor
+from src.service.logging_service import LoggingService
 from src.service.parser.parser import get_chat_log
 
 
@@ -20,7 +21,7 @@ class ChatState(TypedDict, total=False):
 
 
 class LinearAiProcessor(AiProcessor):
-    def __init__(self, system_prompt: str, user_prompt: str, model_name: str = "gemma-3-4b-it-qat",
+    def __init__(self, logging_service: LoggingService, system_prompt: str, user_prompt: str, model_name: str = "gemma-3-4b-it-qat",
                  temperature: float = 0.4, max_tokens: int = 2000, top_p: float = 0.7, api_key: str = "",
                  base_url: str = "", timeout: int = 600, concurrency_limit: int = 2):
         self.system_prompt = system_prompt
@@ -45,7 +46,7 @@ class LinearAiProcessor(AiProcessor):
             "summary": ""
         }
 
-        super().__init__(concurrency_limit, initial_state)
+        super().__init__(logging_service, concurrency_limit, initial_state)
 
     def build_graph(self) -> CompiledStateGraph:
         """Build and compile the LangGraph"""
@@ -67,6 +68,7 @@ class LinearAiProcessor(AiProcessor):
         # get chat log
         messages = state["messages"]
         chat_log = get_chat_log(messages)
+        self.logger.debug(f'Processing chat log, {len(messages)} messages')
 
         ai_chat_messages = []
         if self.system_prompt:
