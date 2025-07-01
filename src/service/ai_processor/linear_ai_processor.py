@@ -13,7 +13,7 @@ from src.service.parser.parser import get_chat_log
 
 
 # Define the state schema for LangGraph
-class ChatState(TypedDict):
+class ChatState(TypedDict, total=False):
     ai_chat: Annotated[list, add_messages]
     messages: list[Message]
     summary: str
