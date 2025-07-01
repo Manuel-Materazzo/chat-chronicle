@@ -37,6 +37,7 @@ class JsonWriter(Writer):
             if self.first_line:
                 f.write(json.dumps(entry, ensure_ascii=False))
                 self.first_line = False
+                return
             f.write(",\n" + json.dumps(entry, ensure_ascii=False))
 
     def close(self) -> None:

@@ -63,8 +63,6 @@ def process_all(config: dict):
     # get summary and write each day diary
     asyncio.run(_batch_process_days(day_list, parser, ai_processor, writer, logger))
 
-    writer.close()
-
 
 async def _batch_process_days(day_list: list[str], parser: Parser, ai_processor: AiProcessor, writer: Writer, logger):
     """
