@@ -45,7 +45,7 @@ parsing:
       photo-uploads: "[Sent a photo of himself]"
       audio-messages: "[Sent an audio message]"
 summarization:
-  strategy: LINEAR # LINEAR or MAP_REDUCE
+  strategy: MAP_REDUCE # LINEAR or MAP_REDUCE
   # linear-strategy: Fit a day's worth of messages into LLM context, and pray the attention god.
   # only really useful if the conversations are short, or if you have access to a high-end model without token concerns.
   linear-strategy:
@@ -88,6 +88,7 @@ summarization:
         3. Record important conversation topics
         4. Maintain the chronological order of events
         5. Include only facts present in the messages
+        Please answer only with the structured summary, without any additional output.
       user-prompt: |-
         MESSAGES:
         {messages}
@@ -112,7 +113,7 @@ summarization:
         6. Length: 150-250 words
         7. Begin with "Dear Diary," and end with a reflection on the day.
       user-prompt: |-
-        MESSAGES:
-        {messages}
+        Summaries:
+        {summaries}
 
         Now, following the instructions step-by-step, write the diary page.
