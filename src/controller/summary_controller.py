@@ -81,7 +81,8 @@ class IEMessageResource(MethodView):
         current_config = app_config.copy()
         current_config.update(payload["configs"])
         try:
-            return execute_summary_request(InputFileType.INSTAGRAM_EXPORT, current_config, payload)
+            response = execute_summary_request(InputFileType.INSTAGRAM_EXPORT, current_config, payload)
+            return jsonify(response)
         finally:
             ai_semaphore.release()
 
