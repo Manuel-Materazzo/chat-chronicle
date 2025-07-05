@@ -133,6 +133,10 @@ def get_configs(filename: str) -> dict:
                                 
                                 Now, following the instructions step-by-step, write the summary.
                          """,
+                        'mini-summary-template': """Summary Start Date: {start-date}
+                                Summary End Date: {end-date}
+                                {content}
+                        """,
                     },
                     'reduce-agent': {
                         'max-tokens': 2000,

@@ -56,6 +56,7 @@ def _get_map_reduce_processor(config: dict, logging_service, api_key, base_url, 
     map_top_p = map_configs.get('top-p', 0.7)
     map_system_prompt = map_configs.get('system-prompt', '')
     map_user_prompt = map_configs.get('user-prompt', '')
+    map_summary_template = map_configs.get('mini-summary-template', '')
 
     # Reduce agent settings
     reduce_configs = config.get('summarization', {}).get('map-reduce-strategy', {}).get('reduce-agent', {})
@@ -66,8 +67,8 @@ def _get_map_reduce_processor(config: dict, logging_service, api_key, base_url, 
     reduce_system_prompt = reduce_configs.get('system-prompt', '')
     reduce_user_prompt = reduce_configs.get('user-prompt', '')
 
-    return MapReduceAiProcessor(logging_service, map_system_prompt, map_user_prompt, map_model_name, map_temperature,
-                                map_max_tokens,
+    return MapReduceAiProcessor(logging_service, map_system_prompt, map_user_prompt, map_summary_template,
+                                map_model_name, map_temperature, map_max_tokens,
                                 map_top_p, reduce_system_prompt, reduce_user_prompt, reduce_model_name,
                                 reduce_temperature, reduce_max_tokens, reduce_top_p, token_per_chunk, api_key, base_url,
                                 timeout, concurrency_limit)

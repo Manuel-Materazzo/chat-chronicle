@@ -26,7 +26,7 @@ class ChatState(TypedDict, total=False):
 
 class MapReduceAiProcessor(AiProcessor):
     def __init__(self, logging_service: LoggingService, map_system_prompt: str = "", map_user_prompt: str = "",
-                 map_model_name: str = "gemma-3-4b-it-qat",
+                 map_summary_template: str = "", map_model_name: str = "gemma-3-4b-it-qat",
                  map_temperature: float = 0.4, map_max_tokens: int = 2000, map_top_p: float = 0.7,
                  reduce_system_prompt: str = "", reduce_user_prompt: str = "",
                  reduce_model_name: str = "gemma-3-4b-it-qat",
@@ -38,6 +38,7 @@ class MapReduceAiProcessor(AiProcessor):
         self.map_user_prompt = map_user_prompt
         self.reduce_user_prompt = reduce_user_prompt
         self.token_per_chunk = token_per_chunk
+        self.map_summary_template = map_summary_template
 
         # Initialize OpenAI client with custom configuration
         self.map_client = ChatOpenAI(
@@ -122,6 +123,8 @@ class MapReduceAiProcessor(AiProcessor):
         chunk: Chunk = state["chunks"].pop()
 
         chat_log = chunk["content"]
+        start_time_string = f"{chunk['start_timestamp'].hour:02}:{chunk['start_timestamp'].minute:02}"
+        end_time_string = f"{chunk['end_timestamp'].hour:02}:{chunk['end_timestamp'].minute:02}"
 
         ai_chat_messages = []
         if self.map_system_prompt:
@@ -133,7 +136,17 @@ class MapReduceAiProcessor(AiProcessor):
 
         # Get response from LLM
         response = await self.map_client.ainvoke(ai_chat_messages)
-        mini_summary = response.content if response.content else ""
+        summary_text = response.content if response.content else ""
+
+        # format mini summary
+        if self.map_summary_template:
+            mini_summary = self.map_summary_template.format(
+                content=summary_text,
+                start_date=start_time_string,
+                end_date=end_time_string
+            )
+        else:
+            mini_summary = summary_text
 
         return {
             "mini_summaries": [mini_summary],

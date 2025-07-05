@@ -94,6 +94,10 @@ summarization:
         {messages}
   
         Now, following the instructions step-by-step, write the summary.
+      mini-summary-template: |-
+        Summary Start Date: {start_date}
+        Summary End Date: {end_date}
+        {content}
     reduce-agent:
       max-tokens: 2000 # maximum LLM output length
       model-name: gemma-3-4b-it-qat # The LLM model to be used
