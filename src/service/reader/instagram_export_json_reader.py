@@ -31,7 +31,7 @@ class InstagramExportJsonReader(JsonReader):
 
             content = self.__get_message_content(raw_message)
             sender = raw_message.get("sender_name", "unknown")
-            token_count = count_tokens_approximately(content, chars_per_token=self.chars_per_token)
+            token_count = count_tokens_approximately([sender, content], chars_per_token=self.chars_per_token)
             messages.append({
                 'sender_name': sender,
                 'timestamp': timestamp,
