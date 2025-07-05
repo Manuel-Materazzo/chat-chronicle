@@ -24,6 +24,13 @@ class AiProcessor(ABC):
         """Build and compile the LangGraph"""
         pass
 
+    def save_graph(self):
+        """Draws a mermaid representation of the built graph"""
+        png_data = self.graph.get_graph().draw_mermaid_png()
+
+        with open("graph.png", "wb") as f:
+            f.write(png_data)
+
     def get_summary_sync(self, messages: list[Message]) -> str:
         """Synchronous wrapper for getting AI summary"""
         return asyncio.run(self.get_summary_async(messages))
@@ -35,8 +42,8 @@ class AiProcessor(ABC):
         state["messages"] = messages
 
         async with self.semaphore:
-            # Invoke the graph
-            result = await self.graph.ainvoke(state)
+            # Invoke the graph, setting a high recursion limit, because iterations are programmatically decided
+            result = await self.graph.ainvoke(state, {"recursion_limit": 1000})
 
             # Return the summary from the result
             return result.get("summary", "")
