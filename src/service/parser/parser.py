@@ -55,6 +55,11 @@ def get_chat_log_chunked(messages: list[Message], token_per_chunk: int) -> list[
             chunk = Chunk(content="", messages_count=0, start_timestamp=None, end_timestamp=None, token_count=0)
             content = content[-3:]  # overlapping chunks content, more context for the AI
 
+    # append the last chunk.
+    chunk["content"] = "".join(content)
+    chunk["end_timestamp"] = messages[-1].get("timestamp")
+    diary.append(chunk)
+
     return diary
 
 
