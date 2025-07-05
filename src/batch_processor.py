@@ -109,7 +109,7 @@ async def _process_single_day(day: str, parser: Parser, ai_processor: AiProcesso
 
         # write to file
         logger.debug(f'Writing file for {day}...')
-        writer.write(day, messages, summary)
+        writer.write(day, summary)
 
         logger.debug(f'Completed processing for {day}')
         logger.info(f'{done_count}/{total} done!')

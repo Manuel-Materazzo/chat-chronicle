@@ -56,7 +56,7 @@ def get_configs(filename: str) -> dict:
                     'type': WriterType.TXT,
                     'path': './output/',
                     'merge-to-one-file': True,
-                    'export-chat-log': False,
+                    'export-intermediate-steps': False,
                 }
             },
             'logs': {

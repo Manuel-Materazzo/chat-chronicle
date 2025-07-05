@@ -35,7 +35,7 @@ def set_config(config: dict):
 
 
 def execute_summary_request(input_type: InputFileType, current_config: dict, raw_messages: any) -> dict:
-    export_chat = current_config.get('output', {}).get('export-chat-log', False)
+    export_intermediate_steps = current_config.get('output', {}).get('export-intermediate-steps', False)
 
     # instantiate services
     reader = reader_factory(input_type, current_config)
@@ -52,13 +52,16 @@ def execute_summary_request(input_type: InputFileType, current_config: dict, raw
 
     for day in day_list:
         chat_log = parser.get_messages(day)
-        summary = ai_processor.get_summary_sync(chat_log)
+        summary_state = ai_processor.get_summary_sync(chat_log)
         entry = {
             "date": day,
-            "summary": str(summary),
+            "summary": str(summary_state.get('summary', '')),
         }
-        if export_chat:
-            entry["chat"] = chat_log
+        if export_intermediate_steps:
+            # remove summary and AI chat, and output everything else
+            del summary_state["summary"]
+            del summary_state["ai_chat"]
+            entry["intermediate_steps"] = summary_state
         diary_entries.append(entry)
 
     return {

@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 
-from src.dto.message import Message
-
 
 class Writer(ABC):
     """
@@ -9,13 +7,13 @@ class Writer(ABC):
     """
 
     @abstractmethod
-    def __init__(self, folder: str, single_file: bool = True, export_chat: bool = False) -> None:
+    def __init__(self, folder: str, single_file: bool = True, export_intermediate_steps: bool = False) -> None:
         self.folder = folder
         self.single_file = single_file
-        self.export_chat = export_chat
+        self.export_intermediate_steps = export_intermediate_steps
 
     @abstractmethod
-    def write(self, date: str, messages: list[Message], summary: str) -> None:
+    def write(self, date: str, summary_state: any) -> None:
         pass
 
     @abstractmethod

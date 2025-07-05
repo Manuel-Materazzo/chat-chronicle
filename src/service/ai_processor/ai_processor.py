@@ -31,11 +31,11 @@ class AiProcessor(ABC):
         with open("graph.png", "wb") as f:
             f.write(png_data)
 
-    def get_summary_sync(self, messages: list[Message]) -> str:
+    def get_summary_sync(self, messages: list[Message]) -> any:
         """Synchronous wrapper for getting AI summary"""
         return asyncio.run(self.get_summary_async(messages))
 
-    async def get_summary_async(self, messages: list[Message]) -> str:
+    async def get_summary_async(self, messages: list[Message]) -> any:
         """Asynchronous method to get AI summary with concurrency control"""
 
         state = self.initial_state.copy()
@@ -43,7 +43,4 @@ class AiProcessor(ABC):
 
         async with self.semaphore:
             # Invoke the graph, setting a high recursion limit, because iterations are programmatically decided
-            result = await self.graph.ainvoke(state, {"recursion_limit": 1000})
-
-            # Return the summary from the result
-            return result.get("summary", "")
+            return await self.graph.ainvoke(state, {"recursion_limit": 1000})

@@ -15,14 +15,14 @@ def writer_factory(config: dict) -> Writer:
     output_path = config.get('batch', {}).get('output', {}).get('path', './')
     file_type = config.get('batch', {}).get('output', {}).get('type', WriterType.TXT)
     single_file = config.get('batch', {}).get('output', {}).get('merge-to-one-file', True)
-    export_chat = config.get('batch', {}).get('output', {}).get('export-chat-log', False)
+    export_intermediate_steps = config.get('batch', {}).get('output', {}).get('export-intermediate-steps', False)
 
     if file_type == WriterType.TXT:
-        return TxtWriter(output_path, single_file, export_chat)
+        return TxtWriter(output_path, single_file, export_intermediate_steps)
     elif file_type == WriterType.NDJSON:
-        return NdJsonWriter(output_path, single_file, export_chat)
+        return NdJsonWriter(output_path, single_file, export_intermediate_steps)
     elif file_type == WriterType.JSON:
-        return JsonWriter(output_path, single_file, export_chat)
+        return JsonWriter(output_path, single_file, export_intermediate_steps)
 
     message = f"Output Writer type not supported, please choose one of the following: {[e for e in WriterType]}"
     raise ValueError(message)

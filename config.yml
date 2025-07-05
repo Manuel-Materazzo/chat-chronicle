@@ -11,7 +11,7 @@ batch:
     type: TXT # TXT, JSON, NDJSON
     path: ./output/ # Path to the directory where the output will be written
     merge-to-one-file: true # Generate only one outout file, instead of a file for every day
-    export-chat-log: false # Add the raw chat log to the output file
+    export-intermediate-steps: false # Add the intermediate steps, such as the raw chat log and intermediate summaries to the output file
 logs:
   level: INFO
 parsing:
