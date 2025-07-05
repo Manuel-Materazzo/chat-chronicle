@@ -118,9 +118,9 @@ class MapReduceAiProcessor(AiProcessor):
 
     async def _map(self, state: ChatState) -> ChatState:
         """Node function that processes chat chunks and generates mini summaries"""
-        # get chat log
+        # get first chat log chronologically
         self.logger.info(f'Processing chat chunk, {len(state["chunks"])} left')
-        chunk: Chunk = state["chunks"].pop()
+        chunk: Chunk = state["chunks"].pop(0)
 
         chat_log = chunk["content"]
         start_time_string = f"{chunk['start_timestamp'].hour:02}:{chunk['start_timestamp'].minute:02}"
