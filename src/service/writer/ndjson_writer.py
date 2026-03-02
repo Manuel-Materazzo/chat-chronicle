@@ -19,7 +19,10 @@ class NdJsonWriter(Writer):
             intermediate = {k: v for k, v in summary_state.items() if k not in ("summary", "ai_chat")}
             entry["intermediate_steps"] = intermediate
 
-        file_path = f"{self.folder}/{self.single_file_name or date + '_chronicle.json'}"
+        if self.single_file:
+            file_path = f"{self.folder}/{self.single_file_name}"
+        else:
+            file_path = f"{self.folder}/{date}_chronicle.json"
 
         with open(file_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False, default=str) + "\n")
