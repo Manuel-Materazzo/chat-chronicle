@@ -13,6 +13,17 @@ from src.service.logging_service import LoggingService
 from src.service.parser.parser_factory import parser_factory
 from src.service.reader.reader_factory import reader_factory
 
+_ALLOWED_CONFIG_KEYS = {'parsing', 'summarization'}
+
+
+def _safe_config_merge(base_config: dict, overrides: dict) -> dict:
+    config = base_config.copy()
+    for key in overrides:
+        if key in _ALLOWED_CONFIG_KEYS:
+            config[key] = overrides[key]
+    return config
+
+
 blp = Blueprint("summarize", "usesummarizers", url_prefix="/summarize",
                 description="Extract a daily summary from a list of messages")
 
@@ -58,10 +69,8 @@ def execute_summary_request(input_type: InputFileType, current_config: dict, raw
             "summary": str(summary_state.get('summary', '')),
         }
         if export_intermediate_steps:
-            # remove summary and AI chat, and output everything else
-            del summary_state["summary"]
-            del summary_state["ai_chat"]
-            entry["intermediate_steps"] = summary_state
+            intermediate = {k: v for k, v in summary_state.items() if k not in ("summary", "ai_chat")}
+            entry["intermediate_steps"] = intermediate
         diary_entries.append(entry)
 
     return {
@@ -78,8 +87,7 @@ class IEMessageResource(MethodView):
         acquired = ai_semaphore.acquire(blocking=False)
         if not acquired:
             return jsonify({"error": "AI service busy, try again later"}), 503
-        current_config = app_config.copy()
-        current_config.update(payload["configs"])
+        current_config = _safe_config_merge(app_config, payload.get("configs", {}))
         try:
             response = execute_summary_request(InputFileType.INSTAGRAM_EXPORT, current_config, payload)
             return jsonify(response)
@@ -96,8 +104,7 @@ class WEMessageResource(MethodView):
         acquired = ai_semaphore.acquire(blocking=False)
         if not acquired:
             return jsonify({"error": "AI service busy, try again later"}), 503
-        current_config = app_config.copy()
-        current_config.update(payload["configs"])
+        current_config = _safe_config_merge(app_config, payload.get("configs", {}))
         try:
             return jsonify(execute_summary_request(InputFileType.WHATSAPP_EXPORT, current_config, payload["messages"]))
         finally:
