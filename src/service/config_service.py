@@ -89,8 +89,8 @@ def get_configs(filename: str) -> dict:
                 }
             },
             'inference-service': {
-                'endpoint': 'http://127.0.0.1:1234/v1',
-                'api-key': 'xxx',
+                'endpoint': os.environ.get('CHAT_CHRONICLE_ENDPOINT', 'http://127.0.0.1:1234/v1'),
+                'api-key': os.environ.get('CHAT_CHRONICLE_API_KEY', 'xxx'),
                 'concurrency-limit': 2,
                 'timeout': 600,
                 'connect-timeout': 10
@@ -133,8 +133,8 @@ def get_configs(filename: str) -> dict:
                                 
                                 Now, following the instructions step-by-step, write the summary.
                          """,
-                        'mini-summary-template': """Summary Start Date: {start-date}
-                                Summary End Date: {end-date}
+                        'mini-summary-template': """Summary Start Date: {start_date}
+                                Summary End Date: {end_date}
                                 {content}
                         """,
                     },
@@ -157,7 +157,7 @@ def get_configs(filename: str) -> dict:
                                 7. Begin with "Dear Diary," and end with a reflection on the day.
                         """,
                         'user-prompt': """Messages:
-                                {messages}
+                                {summaries}
                                 
                                 Now, following the instructions step-by-step, write the diary page.
                         """,
