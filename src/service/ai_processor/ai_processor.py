@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from abc import ABC, abstractmethod
 
 from langchain_core.globals import set_verbose
@@ -10,8 +11,8 @@ from src.service.logging_service import LoggingService
 class AiProcessor(ABC):
 
     def __init__(self, logging_service: LoggingService, concurrency_limit: int, initial_state: dict):
-        set_verbose(True)
         self.logger = logging_service.get_logger(__name__)
+        set_verbose(self.logger.isEnabledFor(logging.DEBUG))
         self.concurrency_limit = concurrency_limit
         self.semaphore = asyncio.Semaphore(self.concurrency_limit)
         self.initial_state = initial_state

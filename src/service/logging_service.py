@@ -4,8 +4,12 @@ from src.dto.enums.log_levels import LogLevel
 
 
 class LoggingService:
+    _configured = False
 
     def __init__(self, config: dict) -> None:
+        if LoggingService._configured:
+            return
+        LoggingService._configured = True
         level = config.get('logs', {}).get('level', LogLevel.INFO)
         LOGGING = {
             "version": 1,
