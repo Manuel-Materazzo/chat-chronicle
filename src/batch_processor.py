@@ -11,10 +11,6 @@ from src.service.reader.reader_factory import reader_factory
 from src.service.writer.writer import Writer
 from src.service.writer.writer_factory import writer_factory
 
-done_count = 1
-total = 0
-
-
 def process_all(config: dict):
     # generate loggers
     logging_service = LoggingService(config)
@@ -68,10 +64,10 @@ async def _batch_process_days(day_list: list[str], parser: Parser, ai_processor:
     """
     Processes the diary entry of  multiple days with concurrent processing.
     """
-    global total
     total = len(day_list)
+    counter = {"done": 0}
     # Create a task for every day
-    tasks = [_process_single_day(day, parser, ai_processor, writer, logger) for day in day_list]
+    tasks = [_process_single_day(day, parser, ai_processor, writer, logger, counter, total) for day in day_list]
 
     # Execute tasks with parallel processing
     completed_days = await asyncio.gather(*tasks, return_exceptions=True)
@@ -86,7 +82,8 @@ async def _batch_process_days(day_list: list[str], parser: Parser, ai_processor:
     return completed_days
 
 
-async def _process_single_day(day: str, parser: Parser, ai_processor: AiProcessor, writer: Writer, logger):
+async def _process_single_day(day: str, parser: Parser, ai_processor: AiProcessor, writer: Writer, logger,
+                              counter: dict, total: int):
     """
     Processes the diary entry of a single day.
     :param day:
@@ -96,14 +93,12 @@ async def _process_single_day(day: str, parser: Parser, ai_processor: AiProcesso
     :param logger:
     :return:
     """
-    global done_count
-    global total
     try:
         # get chat log
         logger.debug(f'Getting chat log for {day}...')
         messages = parser.get_messages(day)
 
-        # compute summary (con controllo concorrenza automatico)
+        # compute summary
         logger.debug(f'Generating summary for {day}...')
         summary = await ai_processor.get_summary_async(messages)
 
@@ -111,9 +106,9 @@ async def _process_single_day(day: str, parser: Parser, ai_processor: AiProcesso
         logger.debug(f'Writing file for {day}...')
         writer.write(day, summary)
 
+        counter["done"] += 1
         logger.debug(f'Completed processing for {day}')
-        logger.info(f'{done_count}/{total} done!')
-        done_count = done_count + 1
+        logger.info(f'{counter["done"]}/{total} done!')
         return day
 
     except Exception as e:

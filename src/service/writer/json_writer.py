@@ -23,9 +23,8 @@ class JsonWriter(Writer):
             "summary": str(summary_state.get('summary', '')),
         }
         if self.export_intermediate_steps:
-            del summary_state["summary"]
-            del summary_state["ai_chat"]
-            entry["intermediate_steps"] = summary_state
+            intermediate = {k: v for k, v in summary_state.items() if k not in ("summary", "ai_chat")}
+            entry["intermediate_steps"] = intermediate
 
         if self.single_file:
             file_path = f"{self.folder}/{self.single_file_name}"

@@ -23,13 +23,11 @@ class TxtWriter(Writer):
             f.write(f"[{date}]\n\n")
             f.write(f"Diary Entry: \n{str(summary_state.get('summary', ''))}\n\n\n")
             if self.export_intermediate_steps:
-                del summary_state["summary"]
-                del summary_state["ai_chat"]
                 chat = get_chat_log(summary_state.get('messages', ''))
                 f.write(f"Chat History: \n{chat}\n\n\n")
-                del summary_state["messages"]
-                for element in summary_state:
-                    f.write(f"{element}: \n{summary_state[element]}\n\n\n")
+                for key, value in summary_state.items():
+                    if key not in ("summary", "ai_chat", "messages"):
+                        f.write(f"{key}: \n{value}\n\n\n")
 
     def close(self) -> None:
         pass
