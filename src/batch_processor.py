@@ -37,10 +37,21 @@ def process_all(config: dict):
 
     # read and parse files
     for file in files:
-        logger.debug(f'Reading {file}...')
-        raw_messages = reader.read(file)
+        # validate input file is not empty
+        if os.path.getsize(file) == 0:
+            logger.warning(f'Skipping empty file: {file}')
+            continue
+        try:
+            logger.debug(f'Reading {file}...')
+            raw_messages = reader.read(file)
+        except Exception as e:
+            logger.error(f'Failed to read {file}: {e}')
+            continue
         logger.debug(f'Standardizing {file}...')
         standardized_messages = reader.standardize_messages(raw_messages)
+        if not standardized_messages:
+            logger.warning(f'No messages found in {file}, skipping')
+            continue
         logger.debug(f'Parsing {file}...')
         parser.parse(standardized_messages)
 
@@ -56,6 +67,14 @@ def process_all(config: dict):
 
     # create AI processor
     ai_processor = ai_processor_factory(config)
+
+    # filter out already-processed days when not writing to a single file
+    if not writer.single_file:
+        existing_files = set(os.listdir(writer.folder)) if os.path.isdir(writer.folder) else set()
+        skipped = [day for day in day_list if any(f.startswith(day) for f in existing_files)]
+        if skipped:
+            logger.info(f'Skipping {len(skipped)} already-processed days')
+            day_list = [day for day in day_list if day not in skipped]
 
     # get summary and write each day diary
     asyncio.run(_batch_process_days(day_list, parser, ai_processor, writer, logger))
