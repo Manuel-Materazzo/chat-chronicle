@@ -66,6 +66,83 @@ reflect on your conversations and relive your digital life.
       ```
     - Access the Swagger docs at `http://localhost:8000/swagger-ui`
 
+## 📡 API Usage
+
+The API exposes two endpoints under `/summarize`. Both accept a JSON body and return diary entries.
+
+### `POST /summarize/instagram-export`
+
+**Request:**
+```json
+{
+  "messages": [
+    {
+      "sender_name": "Alice",
+      "timestamp_ms": 1700000000000,
+      "content": "Hey, how are you?"
+    },
+    {
+      "sender_name": "Bob",
+      "timestamp_ms": 1700000060000,
+      "content": "I'm good, thanks!"
+    }
+  ],
+  "configs": {}
+}
+```
+
+### `POST /summarize/whatsapp-export`
+
+**Request:**
+```json
+{
+  "messages": [
+    "02/01/2024, 10:00 - Alice: Hey, how are you?",
+    "02/01/2024, 10:01 - Bob: I'm good, thanks!"
+  ],
+  "configs": {}
+}
+```
+
+### Response (both endpoints)
+
+```json
+{
+  "entries": [
+    {
+      "date": "2024-01-02",
+      "summary": "Dear Diary, today Alice and Bob had a brief exchange..."
+    }
+  ]
+}
+```
+
+The optional `configs` object allows overriding `parsing` and `summarization` settings per request.
+
+### Error Responses
+
+| Status | Meaning |
+|--------|---------|
+| `200`  | Success |
+| `503`  | AI service busy — retry later |
+
+## 🏗️ Architecture
+
+```
+main.py → batch_processor / api_server
+             ↓                    ↓
+         reader_factory     summary_controller
+             ↓                    ↓
+         parser_factory     ai_processor_factory
+             ↓                    ↓
+         writer_factory     (linear / map_reduce)
+```
+
+- **Readers** load raw chat files (Instagram JSON or WhatsApp TXT).
+- **Parsers** split messages into per-day buckets with optional chat-session detection.
+- **AI Processors** summarize each day using LangChain + LangGraph (`linear` or `map_reduce` strategy).
+- **Writers** output diary entries in TXT, JSON, or NDJSON format.
+
 ## 🤝 Contributing
 
 Contributions are welcome!  Please feel free to submit pull requests with bug fixes, new features, or improvements to
