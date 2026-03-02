@@ -104,7 +104,8 @@ class TestProcessAll(unittest.TestCase):
             # Create a test input file
             input_dir = os.path.join(tmpdir, "input")
             os.makedirs(input_dir)
-            open(os.path.join(input_dir, "chat.json"), 'w').close()
+            with open(os.path.join(input_dir, "chat.json"), 'w') as f:
+                f.write('{"messages": []}')
 
             config = {
                 'logs': {'level': 'WARNING'},
@@ -118,8 +119,8 @@ class TestProcessAll(unittest.TestCase):
             mock_reader = MagicMock()
             mock_reader.get_extension.return_value = ".json"
             mock_reader.get_file_list.return_value = [os.path.join(input_dir, "chat.json")]
-            mock_reader.read.return_value = {"messages": []}
-            mock_reader.standardize_messages.return_value = []
+            mock_reader.read.return_value = {"messages": [{"content": "test"}]}
+            mock_reader.standardize_messages.return_value = [{"content": "test"}]
             mock_reader_factory.return_value = mock_reader
 
             mock_parser = MagicMock()

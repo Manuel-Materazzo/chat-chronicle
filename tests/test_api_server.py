@@ -10,7 +10,7 @@ class TestSetConfig(unittest.TestCase):
 
     @patch('src.controller.summary_controller.ai_processor_factory')
     def test_set_config_initializes_globals(self, mock_factory):
-        mock_factory.return_value = MagicMock()
+        mock_factory.return_value = MagicMock(concurrency_limit=3)
         config = {
             'logs': {'level': 'WARNING'},
             'inference-service': {'concurrency-limit': 3},
