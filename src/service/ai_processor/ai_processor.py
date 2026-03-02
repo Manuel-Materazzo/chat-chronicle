@@ -1,11 +1,17 @@
 import asyncio
 import logging
+import threading
 from abc import ABC, abstractmethod
 
 from langchain_core.globals import set_verbose
 
 from src.dto.message import Message
 from src.service.logging_service import LoggingService
+
+# Shared event loop for sync calls (avoids creating a new loop per request)
+_loop = asyncio.new_event_loop()
+_loop_thread = threading.Thread(target=_loop.run_forever, daemon=True)
+_loop_thread.start()
 
 
 class AiProcessor(ABC):
@@ -34,7 +40,8 @@ class AiProcessor(ABC):
 
     def get_summary_sync(self, messages: list[Message]) -> dict:
         """Synchronous wrapper for getting AI summary"""
-        return asyncio.run(self.get_summary_async(messages))
+        future = asyncio.run_coroutine_threadsafe(self.get_summary_async(messages), _loop)
+        return future.result()
 
     async def get_summary_async(self, messages: list[Message]) -> dict:
         """Asynchronous method to get AI summary with concurrency control"""
