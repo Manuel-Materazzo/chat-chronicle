@@ -12,6 +12,23 @@ from src.dto.enums.writer_type import WriterType
 
 config = dict()
 
+
+def get_nested(cfg: dict, key_path: str, default=None):
+    """
+    Access nested config values using dot-separated keys.
+    Example: get_nested(config, 'parsing.chat-sessions.enabled', True)
+    """
+    value = cfg
+    for key in key_path.split('.'):
+        if isinstance(value, dict):
+            value = value.get(key)
+        else:
+            return default
+        if value is None:
+            return default
+    return value
+
+
 # represent enums as string
 SafeDumper.add_multi_representer(
     StrEnum,
@@ -77,8 +94,8 @@ def get_configs(filename: str) -> dict:
                 },
                 'messages': {
                     'user-interactions': {
-                        'message-like': 'Ha messo "Mi piace" a un messaggio',
-                        'message-reaction': 'Ha aggiunto la reazione'
+                        'message-like': 'Liked a message',
+                        'message-reaction': 'Added a reaction'
                     },
                     'user-content': {
                         'posts-and-reels': '[Shared an internet video]',

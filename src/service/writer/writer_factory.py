@@ -1,4 +1,5 @@
 from src.dto.enums.writer_type import WriterType
+from src.service.config_service import get_nested
 from src.service.writer.json_writer import JsonWriter
 from src.service.writer.ndjson_writer import NdJsonWriter
 from src.service.writer.txt_writer import TxtWriter
@@ -12,10 +13,10 @@ def writer_factory(config: dict) -> Writer:
     :return:
     """
     # get configs
-    output_path = config.get('batch', {}).get('output', {}).get('path', './')
-    file_type = config.get('batch', {}).get('output', {}).get('type', WriterType.TXT)
-    single_file = config.get('batch', {}).get('output', {}).get('merge-to-one-file', True)
-    export_intermediate_steps = config.get('batch', {}).get('output', {}).get('export-intermediate-steps', False)
+    output_path = get_nested(config, 'batch.output.path', './')
+    file_type = get_nested(config, 'batch.output.type', WriterType.TXT)
+    single_file = get_nested(config, 'batch.output.merge-to-one-file', True)
+    export_intermediate_steps = get_nested(config, 'batch.output.export-intermediate-steps', False)
 
     if file_type == WriterType.TXT:
         return TxtWriter(output_path, single_file, export_intermediate_steps)

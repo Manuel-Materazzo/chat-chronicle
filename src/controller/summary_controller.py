@@ -9,6 +9,7 @@ from src.dto.schemas.summary_response_schema import SummaryResponseSchema
 from src.dto.schemas.whatsapp_export_request_schema import WhatsappExportRequestSchema
 from src.service.ai_processor.ai_processor import AiProcessor
 from src.service.ai_processor.ai_processor_factory import ai_processor_factory
+from src.service.config_service import get_nested
 from src.service.logging_service import LoggingService
 from src.service.parser.parser_factory import parser_factory
 from src.service.reader.reader_factory import reader_factory
@@ -41,12 +42,12 @@ def set_config(config: dict):
     logging_service = LoggingService(config)
     app_config = config
     ai_processor = ai_processor_factory(config)
-    concurrency_limit = config.get('inference-service', {}).get('concurrency-limit', 2)
-    ai_semaphore = Semaphore(concurrency_limit)
+    # derive from AI processor's concurrency limit so both semaphores stay in sync
+    ai_semaphore = Semaphore(ai_processor.concurrency_limit)
 
 
 def execute_summary_request(input_type: InputFileType, current_config: dict, raw_messages) -> dict:
-    export_intermediate_steps = current_config.get('output', {}).get('export-intermediate-steps', False)
+    export_intermediate_steps = get_nested(current_config, 'output.export-intermediate-steps', False)
 
     # instantiate services
     reader = reader_factory(input_type, current_config)

@@ -34,9 +34,9 @@ parsing:
     ignore-after: "2150-01-01"
   messages:
     user-interactions:
-      message-like: "Ha messo \"Mi piace\" a un messaggio"
-      message-reaction: "Ha aggiunto la reazione"
-      call-start: "avviato una videochiamata"
+      message-like: "Liked a message"
+      message-reaction: "Added a reaction"
+      call-start: "started a video call"
     user-content:
       call-start: "[Call started]"
       call-end: "[Call ended]"

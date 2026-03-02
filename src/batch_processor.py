@@ -4,6 +4,7 @@ import os
 from src.dto.enums.input_file_type import InputFileType
 from src.service.ai_processor.ai_processor import AiProcessor
 from src.service.ai_processor.ai_processor_factory import ai_processor_factory
+from src.service.config_service import get_nested
 from src.service.logging_service import LoggingService
 from src.service.parser.parser import Parser
 from src.service.parser.parser_factory import parser_factory
@@ -17,8 +18,8 @@ def process_all(config: dict):
     logger = logging_service.get_logger(__name__)
 
     # read configs
-    input_file_type = config.get('batch', {}).get('input', {}).get('type', InputFileType.INSTAGRAM_EXPORT)
-    input_path = config.get('batch', {}).get('input', {}).get('path', './')
+    input_file_type = get_nested(config, 'batch.input.type', InputFileType.INSTAGRAM_EXPORT)
+    input_path = get_nested(config, 'batch.input.path', './')
     logger.debug(f'input_path: {input_path}')
     input_directory = os.fsencode(input_path)
     logger.debug(f'Input directory: {input_directory}')

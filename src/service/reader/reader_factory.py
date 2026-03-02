@@ -1,4 +1,5 @@
 from src.dto.enums.input_file_type import InputFileType
+from src.service.config_service import get_nested
 from src.service.logging_service import LoggingService
 from src.service.reader.instagram_export_json_reader import InstagramExportJsonReader
 from src.service.reader.reader import Reader
@@ -13,8 +14,8 @@ def reader_factory(fileType: InputFileType, config: dict) -> Reader:
     :return:
     """
     # get configs
-    system_messages = config.get('parsing', {}).get('messages', {})
-    chars_per_token = config.get('parsing', {}).get('chars-per-token', 4.0)
+    system_messages = get_nested(config, 'parsing.messages', {})
+    chars_per_token = get_nested(config, 'parsing.chars-per-token', 4.0)
     logging_service = LoggingService(config)
 
     if fileType == InputFileType.INSTAGRAM_EXPORT:

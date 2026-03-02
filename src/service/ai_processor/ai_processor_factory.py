@@ -2,6 +2,7 @@ from src.dto.enums.summarization_strategy import SummarizationStrategy
 from src.service.ai_processor.ai_processor import AiProcessor
 from src.service.ai_processor.linear_ai_processor import LinearAiProcessor
 from src.service.ai_processor.map_reduce_ai_processor import MapReduceAiProcessor
+from src.service.config_service import get_nested
 from src.service.logging_service import LoggingService
 
 
@@ -14,11 +15,11 @@ def ai_processor_factory(config: dict) -> AiProcessor:
     logging_service = LoggingService(config)
 
     # get configs
-    strategy = config.get('summarization', {}).get('strategy', SummarizationStrategy.MAP_REDUCE)
-    api_key = config.get('inference-service', {}).get('api-key', '')
-    base_url = config.get('inference-service', {}).get('endpoint', 'http://127.0.0.1:1234/v1')
-    concurrency_limit = config.get('inference-service', {}).get('concurrency-limit', 1)
-    timeout = config.get('inference-service', {}).get('timeout', 600)
+    strategy = get_nested(config, 'summarization.strategy', SummarizationStrategy.MAP_REDUCE)
+    api_key = get_nested(config, 'inference-service.api-key', '')
+    base_url = get_nested(config, 'inference-service.endpoint', 'http://127.0.0.1:1234/v1')
+    concurrency_limit = get_nested(config, 'inference-service.concurrency-limit', 1)
+    timeout = get_nested(config, 'inference-service.timeout', 600)
 
     if strategy == SummarizationStrategy.LINEAR:
         return _get_linear_processor(config, logging_service, api_key, base_url, timeout, concurrency_limit)
@@ -33,7 +34,7 @@ def ai_processor_factory(config: dict) -> AiProcessor:
 
 def _get_linear_processor(config: dict, logging_service, api_key, base_url, timeout,
                           concurrency_limit) -> LinearAiProcessor:
-    linear_configs = config.get('summarization', {}).get('linear-strategy', {})
+    linear_configs = get_nested(config, 'summarization.linear-strategy', {})
     max_tokens = linear_configs.get('max-tokens', 2000)
     model_name = linear_configs.get('model-name', 'gemma-3-4b-it-qat')
     temperature = linear_configs.get('temperature', 0.4)
@@ -47,9 +48,9 @@ def _get_linear_processor(config: dict, logging_service, api_key, base_url, time
 
 def _get_map_reduce_processor(config: dict, logging_service, api_key, base_url, timeout,
                               concurrency_limit) -> MapReduceAiProcessor:
-    token_per_chunk = config.get('summarization', {}).get('map-reduce-strategy', {}).get('token-per-chunk', 4000)
+    token_per_chunk = get_nested(config, 'summarization.map-reduce-strategy.token-per-chunk', 4000)
     # Map agent settings
-    map_configs = config.get('summarization', {}).get('map-reduce-strategy', {}).get('map-agent', {})
+    map_configs = get_nested(config, 'summarization.map-reduce-strategy.map-agent', {})
     map_max_tokens = map_configs.get('max-tokens', 2000)
     map_model_name = map_configs.get('model-name', 'gemma-3-4b-it-qat')
     map_temperature = map_configs.get('temperature', 0.2)
@@ -59,7 +60,7 @@ def _get_map_reduce_processor(config: dict, logging_service, api_key, base_url, 
     map_summary_template = map_configs.get('mini-summary-template', '')
 
     # Reduce agent settings
-    reduce_configs = config.get('summarization', {}).get('map-reduce-strategy', {}).get('reduce-agent', {})
+    reduce_configs = get_nested(config, 'summarization.map-reduce-strategy.reduce-agent', {})
     reduce_max_tokens = reduce_configs.get('max-tokens', 2000)
     reduce_model_name = reduce_configs.get('model-name', 'gemma-3-4b-it-qat')
     reduce_temperature = reduce_configs.get('temperature', 0.4)

@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_smorest import Api
 from src.controller.summary_controller import blp as summary_blp, set_config
+from src.service.config_service import get_nested
 
 app = Flask(__name__)
 app.config["API_TITLE"] = "Chat Chronicle"
@@ -17,4 +18,6 @@ api.register_blueprint(summary_blp)
 def start_server(config: dict):
     from waitress import serve
     set_config(config)
-    serve(app, host="0.0.0.0", port=8000)
+    host = get_nested(config, 'api.host', '127.0.0.1')
+    port = get_nested(config, 'api.port', 8000)
+    serve(app, host=host, port=port)
