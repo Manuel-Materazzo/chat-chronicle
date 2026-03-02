@@ -99,6 +99,6 @@ class WEMessageResource(MethodView):
         current_config = app_config.copy()
         current_config.update(payload["configs"])
         try:
-            return execute_summary_request(InputFileType.WHATSAPP_EXPORT, current_config, payload["messages"])
+            return jsonify(execute_summary_request(InputFileType.WHATSAPP_EXPORT, current_config, payload["messages"]))
         finally:
             ai_semaphore.release()
