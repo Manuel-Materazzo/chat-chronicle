@@ -56,7 +56,7 @@ def get_chat_log_chunked(messages: list[Message], token_per_chunk: int) -> list[
             content = content[-3:]  # overlapping chunks content, more context for the AI
 
     # append the last chunk, if any.
-    if chunk["messages_count"] > 3:
+    if chunk["messages_count"] > 0:
         chunk["content"] = "".join(content)
         chunk["end_timestamp"] = messages[-1].get("timestamp")
         diary.append(chunk)
@@ -151,8 +151,8 @@ class Parser(ABC):
 
         # add carryover to the previous day
         if len(previous_day_carry_over) > 0:
-            prev_day = prev_timestamp - timedelta(days=1)
-            prev_day_string = prev_day.date().isoformat()
+            prev_day = previous_day_carry_over[0]['timestamp'].date() - timedelta(days=1)
+            prev_day_string = prev_day.isoformat()
             self.message_bucket[prev_day_string].extend(previous_day_carry_over)
 
         return sorted_messages
