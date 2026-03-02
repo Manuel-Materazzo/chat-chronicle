@@ -21,3 +21,6 @@ def reader_factory(fileType: InputFileType, config: dict) -> Reader:
         return InstagramExportJsonReader(system_messages, logging_service, chars_per_token=chars_per_token)
     elif fileType == InputFileType.WHATSAPP_EXPORT:
         return WhatsappTxtReader(logging_service, chars_per_token=chars_per_token)
+
+    message = f"Input file type not supported, please choose one of the following: {[e for e in InputFileType]}"
+    raise ValueError(message)

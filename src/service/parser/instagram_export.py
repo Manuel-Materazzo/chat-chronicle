@@ -39,7 +39,10 @@ class InstagramExport(Parser):
         :param text:
         :return:
         """
-        return text.encode('latin1').decode('utf8')
+        try:
+            return text.encode('latin1').decode('utf8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            return text
 
     def __remove_unicodes(self, text: str) -> str:
         """
