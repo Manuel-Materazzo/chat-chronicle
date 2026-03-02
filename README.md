@@ -32,7 +32,7 @@ reflect on your conversations and relive your digital life.
 
 1. ⬇️ **Clone the repository**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/chat-chronicle.git
+   git clone https://github.com/Manuel-Materazzo/chat-chronicle.git
    cd chat-chronicle
    ```
 
@@ -73,4 +73,4 @@ the documentation.
 
 ## 📝 License
 
-Licensed under the [MIT](https://github.com/Manuel-Materazzo/chat-chronicle/blob/master/LICENSE
+Licensed under the [MIT](https://github.com/Manuel-Materazzo/chat-chronicle/blob/master/LICENSE)
