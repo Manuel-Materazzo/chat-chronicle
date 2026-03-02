@@ -10,7 +10,7 @@ class NdJsonWriter(Writer):
         super().__init__(folder, single_file, export_intermediate_steps)
         self.single_file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M')}_full-chronicle.json"
 
-    def write(self, date: str, summary_state: any) -> None:
+    def write(self, date: str, summary_state: dict) -> None:
         entry = {
             "date": date,
             "summary": str(summary_state.get('summary', '')),

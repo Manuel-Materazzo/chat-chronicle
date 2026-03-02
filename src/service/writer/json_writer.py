@@ -17,7 +17,7 @@ class JsonWriter(Writer):
             with open(file_path, "a", encoding="utf-8") as f:
                 f.write("[\n")
 
-    def write(self, date: str, summary_state: any) -> None:
+    def write(self, date: str, summary_state: dict) -> None:
         entry = {
             "date": date,
             "summary": str(summary_state.get('summary', '')),

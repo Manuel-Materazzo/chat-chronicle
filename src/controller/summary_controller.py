@@ -34,7 +34,7 @@ def set_config(config: dict):
     ai_semaphore = Semaphore(concurrency_limit)
 
 
-def execute_summary_request(input_type: InputFileType, current_config: dict, raw_messages: any) -> dict:
+def execute_summary_request(input_type: InputFileType, current_config: dict, raw_messages) -> dict:
     export_intermediate_steps = current_config.get('output', {}).get('export-intermediate-steps', False)
 
     # instantiate services

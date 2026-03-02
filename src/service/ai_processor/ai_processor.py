@@ -31,11 +31,11 @@ class AiProcessor(ABC):
         with open("graph.png", "wb") as f:
             f.write(png_data)
 
-    def get_summary_sync(self, messages: list[Message]) -> any:
+    def get_summary_sync(self, messages: list[Message]) -> dict:
         """Synchronous wrapper for getting AI summary"""
         return asyncio.run(self.get_summary_async(messages))
 
-    async def get_summary_async(self, messages: list[Message]) -> any:
+    async def get_summary_async(self, messages: list[Message]) -> dict:
         """Asynchronous method to get AI summary with concurrency control"""
 
         state = self.initial_state.copy()

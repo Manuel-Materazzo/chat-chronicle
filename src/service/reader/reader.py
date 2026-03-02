@@ -37,14 +37,14 @@ class Reader(ABC):
         return files
 
     @abstractmethod
-    def read(self, path: str) -> any:
+    def read(self, path: str):
         """
         Reads the provided file
         :return:
         """
 
     @abstractmethod
-    def standardize_messages(self, lines: any) -> list[Message]:
+    def standardize_messages(self, lines) -> list[Message]:
         """
         Standardize the messages format.
         :return:

@@ -10,7 +10,7 @@ class TxtWriter(Writer):
         super().__init__(folder, single_file, export_intermediate_steps)
         self.single_file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M')}_full-chronicle.txt"
 
-    def write(self, date: str, summary_state: any) -> None:
+    def write(self, date: str, summary_state: dict) -> None:
 
         # Compose file path, whether there is an append or a create operation
         if self.single_file:

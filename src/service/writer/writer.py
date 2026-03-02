@@ -13,7 +13,7 @@ class Writer(ABC):
         self.export_intermediate_steps = export_intermediate_steps
 
     @abstractmethod
-    def write(self, date: str, summary_state: any) -> None:
+    def write(self, date: str, summary_state: dict) -> None:
         pass
 
     @abstractmethod
