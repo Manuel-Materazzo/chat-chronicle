@@ -1,0 +1,16 @@
+services:
+
+  chat-chronicle:
+    container_name: chat-chronicle
+    build:
+      dockerfile: Dockerfile
+      context: '.'
+    read_only: true
+    security_opt:
+      - no-new-privileges
+    cap_drop:
+      - ALL
+    volumes:
+      - ./input:/app/input:ro
+      - ./output:/app/output:rw
+      - ./config.yml:/app/config.yml:rw
