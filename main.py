@@ -12,7 +12,7 @@ logging_service = LoggingService(config)
 logger = logging_service.get_logger(__name__)
 
 if __name__ == "__main__":
-    mode = sys.argv[1] if len(sys.argv) > 1 else RunMode.BATCH
+    mode = sys.argv[1].lower() if len(sys.argv) > 1 else RunMode.BATCH
 
     if mode == RunMode.BATCH:
         process_all(config)
