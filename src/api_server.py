@@ -1,5 +1,7 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_smorest import Api
+
 from src.controller.summary_controller import blp as summary_blp, set_config
 from src.service.config_service import get_nested
 
@@ -11,6 +13,7 @@ app.config["OPENAPI_URL_PREFIX"] = "/"
 app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
 app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
+CORS(app)
 api = Api(app)
 api.register_blueprint(summary_blp)
 
