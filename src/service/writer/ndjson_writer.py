@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 
 from src.service.writer.writer import Writer
@@ -20,9 +21,9 @@ class NdJsonWriter(Writer):
             entry["intermediate_steps"] = intermediate
 
         if self.single_file:
-            file_path = f"{self.folder}/{self.single_file_name}"
+            file_path = os.path.join(self.folder, self.single_file_name)
         else:
-            file_path = f"{self.folder}/{date}_chronicle.json"
+            file_path = os.path.join(self.folder, f"{date}_chronicle.json")
 
         with open(file_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry, ensure_ascii=False, default=str) + "\n")

@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 from src.service.parser.parser import get_chat_log
@@ -14,9 +15,9 @@ class TxtWriter(Writer):
 
         # Compose file path, whether there is an append or a create operation
         if self.single_file:
-            file_path = f"{self.folder}/{self.single_file_name}"
+            file_path = os.path.join(self.folder, self.single_file_name)
         else:
-            file_path = f"{self.folder}/{date}_chronicle.txt"
+            file_path = os.path.join(self.folder, f"{date}_chronicle.txt")
 
         # Write the daily log
         with open(file_path, "a", encoding="utf-8") as f:
