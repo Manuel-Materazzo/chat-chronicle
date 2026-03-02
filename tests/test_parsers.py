@@ -81,14 +81,14 @@ class TestGetChatLogChunked(unittest.TestCase):
             self.assertGreater(chunk["messages_count"], 0)
             self.assertGreater(len(chunk["content"]), 0)
 
-    def test_too_few_messages_discarded(self):
+    def test_few_messages_included(self):
         messages = [
             _make_message("Alice", "Hi", datetime(2024, 1, 15, 10, 0), token_count=5),
             _make_message("Bob", "Hey", datetime(2024, 1, 15, 10, 1), token_count=5),
         ]
         result = get_chat_log_chunked(messages, 10000)
-        # Only 2 messages, below the threshold of 3 for the last chunk
-        self.assertEqual(len(result), 0)
+        # Even few messages should be included in the last chunk
+        self.assertEqual(len(result), 1)
 
 
 class TestParserHandleNewlines(unittest.TestCase):

@@ -35,15 +35,13 @@ class TestProcessSingleDay(unittest.TestCase):
         mock_writer = MagicMock()
         mock_logger = MagicMock()
 
-        result = asyncio.run(_process_single_day("2024-01-15", mock_parser, mock_ai, mock_writer, mock_logger))
+        counter = {"done": 0}
+        result = asyncio.run(_process_single_day("2024-01-15", mock_parser, mock_ai, mock_writer, mock_logger, counter, 1))
         self.assertEqual(result, "2024-01-15")
         mock_writer.write.assert_called_once_with("2024-01-15", {"summary": "A great day.", "ai_chat": []})
+        self.assertEqual(counter["done"], 1)
 
     def test_process_single_day_error_reraises(self):
-        import src.batch_processor as bp
-        bp.done_count = 1
-        bp.total = 1
-
         mock_parser = MagicMock()
         mock_parser.get_messages.return_value = []
 
@@ -52,9 +50,10 @@ class TestProcessSingleDay(unittest.TestCase):
 
         mock_writer = MagicMock()
         mock_logger = MagicMock()
+        counter = {"done": 0}
 
         with self.assertRaises(RuntimeError):
-            asyncio.run(_process_single_day("2024-01-15", mock_parser, mock_ai, mock_writer, mock_logger))
+            asyncio.run(_process_single_day("2024-01-15", mock_parser, mock_ai, mock_writer, mock_logger, counter, 1))
 
 
 class TestBatchProcessDays(unittest.TestCase):
