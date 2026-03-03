@@ -28,27 +28,48 @@ reflect on your conversations and relive your digital life.
 * Python 3.11
 * An LLM inference service endpoint (e.g., running locally or a cloud-based service).
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-1. ⬇️ **Clone the repository**:
-   ```bash
-   git clone https://github.com/Manuel-Materazzo/chat-chronicle.git
-   cd chat-chronicle
+### 🐳 Docker prebuilt
+
+1. **Pull the Docker Image**:
+   ```sh
+   docker pull ghcr.io/manuel-materazzo/chat-chronicle:latest
+    ```
+2. **Run the Container**:
+   ```sh
+   docker run -d -p 8000:8000 manuel-materazzo/chat-chronicle
+    ```
+
+### 🐳🔧 Docker compose self-build
+
+1. **Run docker compose**:
+   ```sh
+   docker-compose up
    ```
 
-2. 📲 **Install dependencies**:
-   ```bash
+### 📦 Manual installation
+
+1. **Clone Coginets repository**:
+   ```sh
+   git clone https://github.com/Manuel-Materazzo/chat-chronicle.git
+   cd Coginets
+   ```
+2. **Install the required dependencies**:
+   ```sh
    pip install -r requirements.txt
    ```
 
-3. 🔧 **Configure**:
+## 🔧 Setting up
+
+1. 🔧 **Configure**:
     - Edit `config.yml` to set your preferences
     - Set AI parameters (temperature, model, etc.)
     - Configure input/output paths
     - Adjust parsing rules for your language/needs
     - Enable/disable features like chat session detection
 
-4. 🏃‍➡️ **Run**
+2. 🏃‍➡️ **Run**
 
    📚 **Batch Mode**:
     - Place your chat export files in the `input` directory
