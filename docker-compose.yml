@@ -2,6 +2,7 @@ services:
 
   chat-chronicle:
     container_name: chat-chronicle
+    command: python main.py api # or python main.py batch
     build:
       dockerfile: Dockerfile
       context: '.'
@@ -10,6 +11,8 @@ services:
       - no-new-privileges
     cap_drop:
       - ALL
+    ports:
+      - '8000:8000'
     volumes:
       - ./input:/app/input:ro
       - ./output:/app/output:rw
