@@ -21,6 +21,6 @@ api.register_blueprint(summary_blp)
 def start_server(config: dict):
     from waitress import serve
     set_config(config)
-    host = get_nested(config, 'api.host', '127.0.0.1')
+    host = get_nested(config, 'api.host', '0.0.0.0')
     port = get_nested(config, 'api.port', 8000)
     serve(app, host=host, port=port)
