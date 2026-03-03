@@ -59,9 +59,12 @@ class TestExecuteSummaryRequest(unittest.TestCase):
         }
 
         config = {'logs': {'level': 'WARNING'}}
-        raw_messages = [{"sender_name": "Alice", "timestamp_ms": 1700000000000, "content": "Hello!"}]
+        payload = {
+            "configs": {},
+            "messages": [{"sender_name": "Alice", "timestamp_ms": 1700000000000, "content": "Hello!"}]
+        }
 
-        result = execute_summary_request(InputFileType.INSTAGRAM_EXPORT, config, raw_messages)
+        result = execute_summary_request(InputFileType.INSTAGRAM_EXPORT, config, payload)
 
         self.assertIn("entries", result)
         self.assertEqual(len(result["entries"]), 1)
@@ -153,20 +156,18 @@ class TestFlaskEndpoints(unittest.TestCase):
         })
         self.assertEqual(response.status_code, 503)
 
-    def test_instagram_export_missing_messages(self):
-        import src.controller.summary_controller as sc
-        sc.ai_semaphore = MagicMock()
-        sc.ai_semaphore.acquire.return_value = True
+    @patch('src.controller.summary_controller.ai_semaphore')
+    def test_instagram_export_missing_messages(self, mock_semaphore):
+        mock_semaphore.acquire.return_value = True
 
         response = self.client.post('/summarize/instagram-export', json={
             "configs": {}
         })
         self.assertEqual(response.status_code, 422)
 
-    def test_whatsapp_export_missing_messages(self):
-        import src.controller.summary_controller as sc
-        sc.ai_semaphore = MagicMock()
-        sc.ai_semaphore.acquire.return_value = True
+    @patch('src.controller.summary_controller.ai_semaphore')
+    def test_whatsapp_export_missing_messages(self, mock_semaphore):
+        mock_semaphore.acquire.return_value = True
 
         response = self.client.post('/summarize/whatsapp-export', json={
             "configs": {}

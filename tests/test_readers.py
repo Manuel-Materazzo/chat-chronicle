@@ -270,6 +270,11 @@ class TestReaderFactory(unittest.TestCase):
         self.assertEqual(ig_reader.get_extension(), ".json")
         self.assertEqual(wa_reader.get_extension(), ".txt")
 
+    def test_unsupported_type_raises(self):
+        config = {'parsing': {'messages': {}, 'chars-per-token': 4.0}, 'logs': {'level': 'WARNING'}}
+        with self.assertRaises(ValueError):
+            reader_factory("UNSUPPORTED", config)
+
 
 if __name__ == '__main__':
     unittest.main()

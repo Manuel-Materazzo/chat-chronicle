@@ -62,12 +62,18 @@ class TestGetConfigs(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             config_path = os.path.join(tmpdir, "config_test.yml")
             config1 = get_configs(config_path)
-
-            # Reset to allow re-read but ensure the cache check works
-            import src.service.config_service as cs
-            # config is already set with 'logs' key, so second call should return cached
             config2 = get_configs(config_path)
-            self.assertEqual(config1, config2)
+            # Verify same object identity, not just equality
+            self.assertIs(config1, config2)
+
+    def test_caching_does_not_reread_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_path = os.path.join(tmpdir, "config_test.yml")
+            config1 = get_configs(config_path)
+            # Remove the file; second call should return cached without reading
+            os.remove(config_path)
+            config2 = get_configs(config_path)
+            self.assertIs(config1, config2)
 
 
 class TestStrPresenter(unittest.TestCase):

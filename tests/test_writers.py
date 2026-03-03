@@ -152,6 +152,23 @@ class TestNdJsonWriter(unittest.TestCase):
             self.assertEqual(json.loads(lines[0])["date"], "2024-01-15")
             self.assertEqual(json.loads(lines[1])["date"], "2024-01-16")
 
+    def test_write_separate_files(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            writer = NdJsonWriter(tmpdir, single_file=False)
+            writer.write("2024-01-15", {"summary": "Day one."})
+            writer.write("2024-01-16", {"summary": "Day two."})
+            writer.close()
+
+            files = sorted(os.listdir(tmpdir))
+            self.assertEqual(len(files), 2)
+            self.assertIn("2024-01-15_chronicle.json", files)
+            self.assertIn("2024-01-16_chronicle.json", files)
+
+            with open(os.path.join(tmpdir, "2024-01-15_chronicle.json"), encoding='utf-8') as f:
+                entry = json.loads(f.readline())
+            self.assertEqual(entry["date"], "2024-01-15")
+            self.assertEqual(entry["summary"], "Day one.")
+
 
 class TestWriterFactory(unittest.TestCase):
 

@@ -20,10 +20,6 @@ def _make_message(sender, content, timestamp, token_count=10):
 class TestProcessSingleDay(unittest.TestCase):
 
     def test_process_single_day_success(self):
-        import src.batch_processor as bp
-        bp.done_count = 1
-        bp.total = 1
-
         mock_parser = MagicMock()
         mock_parser.get_messages.return_value = [
             _make_message("Alice", "Hello!", datetime(2024, 1, 15, 10, 30))
@@ -97,8 +93,7 @@ class TestProcessAll(unittest.TestCase):
     @patch('src.batch_processor.writer_factory')
     @patch('src.batch_processor.parser_factory')
     @patch('src.batch_processor.reader_factory')
-    @patch('src.batch_processor.asyncio')
-    def test_process_all_flow(self, mock_asyncio, mock_reader_factory, mock_parser_factory,
+    def test_process_all_flow(self, mock_reader_factory, mock_parser_factory,
                                mock_writer_factory, mock_ai_factory):
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create a test input file
@@ -125,12 +120,17 @@ class TestProcessAll(unittest.TestCase):
 
             mock_parser = MagicMock()
             mock_parser.get_available_days.return_value = ["2024-01-15"]
+            mock_parser.get_messages.return_value = [
+                _make_message("Alice", "Hello!", datetime(2024, 1, 15, 10, 30))
+            ]
             mock_parser_factory.return_value = mock_parser
 
             mock_writer = MagicMock()
+            mock_writer.single_file = True
             mock_writer_factory.return_value = mock_writer
 
             mock_ai = MagicMock()
+            mock_ai.get_summary_async = AsyncMock(return_value={"summary": "A great day.", "ai_chat": []})
             mock_ai_factory.return_value = mock_ai
 
             process_all(config)
@@ -143,6 +143,10 @@ class TestProcessAll(unittest.TestCase):
             mock_reader.standardize_messages.assert_called_once()
             mock_parser.parse.assert_called_once()
             mock_parser.sort_bucket.assert_called_once()
+            # Verify async orchestration actually ran
+            mock_ai.get_summary_async.assert_called_once()
+            mock_writer.write.assert_called_once_with("2024-01-15", {"summary": "A great day.", "ai_chat": []})
+            mock_writer.close.assert_called_once()
 
 
 if __name__ == '__main__':

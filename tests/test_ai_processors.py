@@ -154,11 +154,10 @@ class TestMapReduceAiProcessor(unittest.TestCase):
         mock_client = MagicMock()
         mock_client.ainvoke = AsyncMock(return_value=mock_response)
 
-        # Empty template to skip formatting (template uses hyphenated keys like {start-date})
         processor = MapReduceAiProcessor(
             _logging_service(),
             map_system_prompt="sys", map_user_prompt="{messages}",
-            map_summary_template="",
+            map_summary_template="From {start_date} to {end_date}: {content}",
             reduce_system_prompt="", reduce_user_prompt="",
             api_key="key", base_url="http://localhost", timeout=600, concurrency_limit=2
         )
@@ -178,7 +177,7 @@ class TestMapReduceAiProcessor(unittest.TestCase):
         result = asyncio.run(processor._map(state))
         self.assertIn("mini_summaries", result)
         self.assertEqual(len(result["mini_summaries"]), 1)
-        self.assertEqual(result["mini_summaries"][0], "Mini summary")
+        self.assertEqual(result["mini_summaries"][0], "From 10:00 to 11:00: Mini summary")
 
     @patch('src.service.ai_processor.map_reduce_ai_processor.ChatOpenAI')
     def test_reduce_node(self, mock_chat):
