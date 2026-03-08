@@ -4,7 +4,6 @@
     <img src="resources/logo.png" width="230" alt="Warp" />
   </div>
 <h1>Chat Chronicle</h1>
-Transforming Chats into Cherished Memories<br>
 <a href="https://codecov.io/gh/Manuel-Materazzo/chat-chronicle" > 
  <img src="https://codecov.io/gh/Manuel-Materazzo/chat-chronicle/graph/badge.svg?token=66A5P46Y4N"/> 
 </a>
