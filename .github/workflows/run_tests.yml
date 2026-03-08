@@ -1,0 +1,41 @@
+name: Run tests and send coverage report to codecov
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout GitHub Action
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.14'
+
+      - name: Install requirements
+        run: pip install -r ./requirements.txt
+
+      - name: Install test and coverage framework
+        run: pip install pytest pytest-cov pytest-timeout
+
+      - name: Run tests
+        run: pytest --cov --cov-branch --cov-report=xml --junitxml=junit.xml -o junit_family=legacy --durations=20 --timeout=60
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: Manuel-Materazzo/chat-chronicle
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: Manuel-Materazzo/chat-chronicle
