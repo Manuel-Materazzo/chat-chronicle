@@ -5,10 +5,10 @@
   </div>
 <h1>Chat Chronicle</h1>
 Transforming Chats into Cherished Memories<br>
-<hr />
 <a href="https://codecov.io/gh/Manuel-Materazzo/chat-chronicle" > 
  <img src="https://codecov.io/gh/Manuel-Materazzo/chat-chronicle/graph/badge.svg?token=66A5P46Y4N"/> 
 </a>
+<br>
 </div>
 
 Tired of your precious memories fading away in endless chat logs?  `chat-chronicle` is here to help! This tool
