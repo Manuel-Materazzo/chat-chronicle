@@ -1,4 +1,15 @@
-# 📖 Chat Chronicle
+
+<div align="center">
+<div>
+    <img src="resources/logo.png" width="230" alt="Warp" />
+  </div>
+<h1>Chat Chronicle</h1>
+Transforming Chats into Cherished Memories<br>
+<hr />
+<a href="https://codecov.io/gh/Manuel-Materazzo/chat-chronicle" > 
+ <img src="https://codecov.io/gh/Manuel-Materazzo/chat-chronicle/graph/badge.svg?token=66A5P46Y4N"/> 
+</a>
+</div>
 
 Tired of your precious memories fading away in endless chat logs?  `chat-chronicle` is here to help! This tool
 automatically transforms your chat history into concise and insightful diary entries, powered by the magic of Large
